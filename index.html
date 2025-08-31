@@ -14,6 +14,9 @@
 <!-- html2pdf -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
 
+<!-- Font Awesome -->
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+
 <!-- Custom CSS -->
 <link rel="stylesheet" href="style.css">
 
@@ -24,110 +27,139 @@
   <h1>Gerador de Currículos Profissional</h1>
 </header>
 
-<main>
-  <div id="loginStatus">
-    <span id="userEmail"></span>
-    <button id="loginBtn" onclick="loginGoogle()">Login com Google</button>
-    <button id="logoutBtn" onclick="logout()" style="display:none;">Logout</button>
-  </div>
+<main class="main-container">
+    <div id="editor-panel">
+        <div class="editor-header">
+            <h2>Editor de Currículo</h2>
+            <div id="loginStatus">
+                <span id="userEmail"></span>
+                <button id="loginBtn" class="button-secondary" onclick="loginGoogle()">Login com Google</button>
+                <button id="logoutBtn" class="button-secondary" onclick="logout()" style="display:none;">Logout</button>
+            </div>
+        </div>
 
-  <div id="savedCvArea" style="display:none; margin-top: 20px; padding: 15px; background-color: #f7f7f7; border-radius: 8px;">
-      <h4>Meus Currículos Salvos</h4>
-      <select id="savedCvSelect" style="width: 70%;"></select>
-      <button type="button" onclick="carregarCurriculo()">Carregar</button>
-      <button type="button" class="remove-btn" onclick="deletarCurriculo()">Deletar</button>
-  </div>
+        <div id="savedCvArea" style="display:none;">
+            <h4>Meus Currículos</h4>
+            <select id="savedCvSelect"></select>
+            <button type="button" onclick="carregarCurriculo()">Carregar</button>
+            <button type="button" class="remove-btn" onclick="deletarCurriculo()">Deletar</button>
+        </div>
 
-  <h2>Preencha seus dados</h2>
-  <form id="cvForm">
-    <div class="layout-controls">
-        <div>
-            <label for="template-select">Modelo</label>
-            <select id="template-select" name="template-select">
-                <option value="classico">Clássico</option>
-                <option value="moderno" disabled>Moderno (Premium)</option>
-            </select>
+        <form id="cvForm">
+            <div class="form-section">
+                <h3>Design e Layout</h3>
+                <div class="layout-controls">
+                    <div>
+                        <label for="template-select">Modelo</label>
+                        <select id="template-select" name="template-select">
+                            <option value="classico">Clássico</option>
+                            <option value="moderno" disabled>Moderno (Premium)</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label for="accent-color">Cor Destaque</label>
+                        <input type="color" id="accent-color" value="#4a90e2">
+                    </div>
+                    <div>
+                        <label for="font-select">Fonte</label>
+                        <select id="font-select">
+                            <option value="lato">Lato</option>
+                            <option value="roboto">Roboto</option>
+                            <option value="merriweather">Merriweather</option>
+                        </select>
         </div>
         <div>
-            <label for="accent-color">Cor Destaque</label>
-            <input type="color" id="accent-color" value="#4a90e2">
+            <label for="margin-slider">Margens Laterais</label>
+            <input type="range" id="margin-slider" min="20" max="60" value="30">
+            <span id="margin-value">30px</span>
         </div>
         <div>
-            <label for="font-select">Fonte</label>
-            <select id="font-select">
-                <option value="lato">Lato</option>
-                <option value="roboto">Roboto</option>
-                <option value="merriweather">Merriweather</option>
-            </select>
+            <label for="spacing-slider">Espaçamento de Seção</label>
+            <input type="range" id="spacing-slider" min="15" max="40" value="25">
+            <span id="spacing-value">25px</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="form-section">
+                <h3>Informações Pessoais</h3>
+                <label>Nome</label>
+                <input type="text" id="nome" placeholder="Seu nome completo">
+
+                <label for="profilePicInput">Foto de Perfil (Opcional)</label>
+                <input type="file" id="profilePicInput" accept="image/*" onchange="handleProfilePicUpload(this.files[0])">
+                <img id="profilePicPreview" src="" alt="Preview da Foto" style="max-width: 100px; border-radius: 50%; margin-top: 10px; display: none;">
+                <input type="hidden" id="profilePicUrl" value="">
+
+                <label for="email">Email <select class="icon-select" id="email-icon"><option value="">Sem Ícone</option><option value="fas fa-envelope">Envelope</option><option value="fas fa-at">At</option></select></label>
+                <input type="email" id="email" placeholder="seu@email.com">
+                <span class="error-message" id="email-error"></span>
+
+                <label for="telefone">Telefone <select class="icon-select" id="telefone-icon"><option value="">Sem Ícone</option><option value="fas fa-phone">Telefone</option><option value="fab fa-whatsapp">WhatsApp</option></select></label>
+                <input type="tel" id="telefone" placeholder="(11) 99999-9999">
+                <span class="error-message" id="telefone-error"></span>
+            </div>
+
+            <div class="form-section">
+                <h3>Resumo Profissional <select class="icon-select" id="resumo-icon"><option value="">Sem Ícone</option><option value="fas fa-user">Pessoa</option><option value="fas fa-id-card">Crachá</option></select></h3>
+                <textarea id="resumo" rows="4" placeholder="Breve descrição sobre você"></textarea>
+            </div>
+
+            <div class="form-section">
+                <h3>Experiências <select class="icon-select" id="experiencias-icon"><option value="">Sem Ícone</option><option value="fas fa-briefcase">Mala</option><option value="fas fa-building">Prédio</option></select></h3>
+                <div id="experiencias-container"></div>
+                <button type="button" class="button-add" onclick="adicionarExperiencia()">+ Adicionar Experiência</button>
+            </div>
+
+            <div class="form-section">
+                <h3>Formação Acadêmica <select class="icon-select" id="formacao-icon"><option value="">Sem Ícone</option><option value="fas fa-graduation-cap">Chapéu</option><option value="fas fa-university">Universidade</option></select></h3>
+                <div id="formacao-container"></div>
+                <button type="button" class="button-add" onclick="adicionarFormacao()">+ Adicionar Formação</button>
+            </div>
+
+            <div class="form-section">
+                <h3>Habilidades <select class="icon-select" id="habilidades-icon"><option value="">Sem Ícone</option><option value="fas fa-star">Estrela</option><option value="fas fa-check">Check</option></select></h3>
+                <div id="habilidades-container"></div>
+                <button type="button" class="button-add" onclick="adicionarHabilidade()">+ Adicionar Habilidade</button>
+            </div>
+
+            <div class="form-section">
+                <h3>Idiomas <select class="icon-select" id="idiomas-icon"><option value="">Sem Ícone</option><option value="fas fa-language">Linguagem</option><option value="fas fa-globe">Globo</option></select></h3>
+                <input type="text" id="idiomas" placeholder="Ex.: Inglês - Avançado, Espanhol - Intermediário">
+            </div>
+
+            <div class="form-section">
+                <h3>Projetos <select class="icon-select" id="projetos-icon"><option value="">Sem Ícone</option><option value="fas fa-project-diagram">Diagrama</option><option value="fas fa-tools">Ferramentas</option></select></h3>
+                <div id="projetos-container"></div>
+                <button type="button" class="button-add" onclick="adicionarProjeto()">+ Adicionar Projeto</button>
+            </div>
+
+            <div class="form-section">
+                <h3>Links Profissionais <select class="icon-select" id="links-icon"><option value="">Sem Ícone</option><option value="fas fa-link">Link</option><option value="fas fa-share-alt">Compartilhar</option></select></h3>
+                <div id="links-container"></div>
+                <button type="button" class="button-add" onclick="adicionarLink()">+ Adicionar Link</button>
+            </div>
+        </form>
+    </div>
+
+    <div id="preview-panel">
+        <div class="preview-actions">
+            <button type="button" onclick="novoCurriculo()">Novo</button>
+            <button type="button" onclick="salvarCurriculo()">Salvar</button>
+            <button type="button" onclick="salvarComoNovo()">Salvar como...</button>
+            <div class="dropdown">
+                <button class="dropbtn">Exportar</button>
+                <div class="dropdown-content">
+                    <a href="#" onclick="exportarPDF(); return false;">Exportar PDF</a>
+                    <a href="#" onclick="exportarDOCX(); return false;">Exportar DOCX</a>
+                </div>
+            </div>
+            <button type="button" class="button-premium" onclick="comprarPremium()">Seja Premium</button>
+        </div>
+        <div id="preview">
+            <!-- O preview do currículo será renderizado aqui -->
         </div>
     </div>
-
-    <label>Nome</label>
-    <input type="text" id="nome" placeholder="Seu nome completo">
-
-    <label for="profilePicInput">Foto de Perfil (Opcional)</label>
-    <input type="file" id="profilePicInput" accept="image/*" onchange="handleProfilePicUpload(this.files[0])" style="border: none; padding-left: 0;">
-    <img id="profilePicPreview" src="" alt="Preview da Foto" style="max-width: 100px; border-radius: 50%; margin-top: 10px; display: none;">
-    <input type="hidden" id="profilePicUrl" value="">
-
-    <label>Email</label>
-    <input type="email" id="email" placeholder="seu@email.com">
-    <span class="error-message" id="email-error"></span>
-
-    <label>Telefone</label>
-    <input type="tel" id="telefone" placeholder="(11) 99999-9999">
-    <span class="error-message" id="telefone-error"></span>
-
-    <label>Resumo Profissional</label>
-    <textarea id="resumo" rows="3" placeholder="Breve descrição sobre você"></textarea>
-
-    <label>Experiências</label>
-    <div id="experiencias-container">
-      <!-- Entradas de experiência serão adicionadas aqui -->
-    </div>
-    <button type="button" onclick="adicionarExperiencia()">Adicionar Experiência</button>
-
-    <label>Formação Acadêmica</label>
-    <div id="formacao-container">
-      <!-- Entradas de formação serão adicionadas aqui -->
-    </div>
-    <button type="button" onclick="adicionarFormacao()">Adicionar Formação</button>
-
-    <label>Habilidades</label>
-    <div id="habilidades-container">
-        <!-- Entradas de habilidades serão adicionadas aqui -->
-    </div>
-    <button type="button" onclick="adicionarHabilidade()">Adicionar Habilidade</button>
-
-    <label>Idiomas</label>
-    <input type="text" id="idiomas" placeholder="Ex.: Inglês - Avançado, Espanhol - Intermediário">
-
-    <label>Projetos</label>
-    <div id="projetos-container">
-        <!-- Entradas de projetos serão adicionadas aqui -->
-    </div>
-    <button type="button" onclick="adicionarProjeto()">Adicionar Projeto</button>
-
-    <label>Links Profissionais</label>
-    <div id="links-container">
-        <!-- Entradas de links serão adicionadas aqui -->
-    </div>
-    <button type="button" onclick="adicionarLink()">Adicionar Link</button>
-
-    <div class="form-actions">
-        <button type="button" onclick="novoCurriculo()">Novo Currículo</button>
-        <button type="button" onclick="salvarCurriculo()">Salvar Alterações</button>
-        <button type="button" onclick="salvarComoNovo()">Salvar como Novo</button>
-        <button type="button" onclick="exportarPDF()">Exportar PDF</button>
-        <button type="button" onclick="exportarDOCX()">Exportar DOCX</button>
-        <button type="button" onclick="comprarPremium()">Comprar Premium</button>
-    </div>
-  </form>
-
-  <div id="preview">
-    <h3>Preview do Currículo</h3>
-    <p>Preencha os campos e clique em "Gerar Preview" para ver seu currículo aqui.</p>
-  </div>
 </main>
 
 <!-- SortableJS Library -->

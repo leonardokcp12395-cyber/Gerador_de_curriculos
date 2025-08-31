@@ -100,9 +100,12 @@ function adicionarExperiencia() {
     const newEntry = document.createElement('div');
     newEntry.className = 'experiencia-entry';
     newEntry.innerHTML = `
-        <input type="text" placeholder="Cargo">
-        <input type="text" placeholder="Empresa">
-        <textarea rows="2" placeholder="Descrição das atividades..."></textarea>
+        <span class="drag-handle"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16"><path d="M7 2a1 1 0 1 1-2 0 1 1 0 0 1 2 0zm3 0a1 1 0 1 1-2 0 1 1 0 0 1 2 0zM7 5a1 1 0 1 1-2 0 1 1 0 0 1 2 0zm3 0a1 1 0 1 1-2 0 1 1 0 0 1 2 0zM7 8a1 1 0 1 1-2 0 1 1 0 0 1 2 0zm3 0a1 1 0 1 1-2 0 1 1 0 0 1 2 0zm-3 3a1 1 0 1 1-2 0 1 1 0 0 1 2 0zm3 0a1 1 0 1 1-2 0 1 1 0 0 1 2 0zm-3 3a1 1 0 1 1-2 0 1 1 0 0 1 2 0zm3 0a1 1 0 1 1-2 0 1 1 0 0 1 2 0z"/></svg></span>
+        <div class="entry-content">
+            <input type="text" placeholder="Cargo">
+            <input type="text" placeholder="Empresa">
+            <textarea rows="2" placeholder="Descrição das atividades..."></textarea>
+        </div>
         <button type="button" class="remove-btn" onclick="this.parentElement.remove()">Remover</button>
     `;
     container.appendChild(newEntry);
@@ -113,9 +116,12 @@ function adicionarProjeto() {
     const newEntry = document.createElement('div');
     newEntry.className = 'projeto-entry';
     newEntry.innerHTML = `
-        <input type="text" placeholder="Nome do Projeto">
-        <input type="text" placeholder="Link do Projeto (opcional)">
-        <textarea rows="2" placeholder="Descrição do projeto..."></textarea>
+        <span class="drag-handle"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16"><path d="M7 2a1 1 0 1 1-2 0 1 1 0 0 1 2 0zm3 0a1 1 0 1 1-2 0 1 1 0 0 1 2 0zM7 5a1 1 0 1 1-2 0 1 1 0 0 1 2 0zm3 0a1 1 0 1 1-2 0 1 1 0 0 1 2 0zM7 8a1 1 0 1 1-2 0 1 1 0 0 1 2 0zm3 0a1 1 0 1 1-2 0 1 1 0 0 1 2 0zm-3 3a1 1 0 1 1-2 0 1 1 0 0 1 2 0zm3 0a1 1 0 1 1-2 0 1 1 0 0 1 2 0zm-3 3a1 1 0 1 1-2 0 1 1 0 0 1 2 0zm3 0a1 1 0 1 1-2 0 1 1 0 0 1 2 0z"/></svg></span>
+        <div class="entry-content">
+            <input type="text" placeholder="Nome do Projeto">
+            <input type="text" placeholder="Link do Projeto (opcional)">
+            <textarea rows="2" placeholder="Descrição do projeto..."></textarea>
+        </div>
         <button type="button" class="remove-btn" onclick="this.parentElement.remove()">Remover</button>
     `;
     container.appendChild(newEntry);
@@ -126,8 +132,11 @@ function adicionarLink() {
     const newEntry = document.createElement('div');
     newEntry.className = 'link-entry';
     newEntry.innerHTML = `
-        <input type="text" placeholder="Nome do Link (ex: LinkedIn, GitHub)">
-        <input type="text" placeholder="URL do Link">
+        <span class="drag-handle"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16"><path d="M7 2a1 1 0 1 1-2 0 1 1 0 0 1 2 0zm3 0a1 1 0 1 1-2 0 1 1 0 0 1 2 0zM7 5a1 1 0 1 1-2 0 1 1 0 0 1 2 0zm3 0a1 1 0 1 1-2 0 1 1 0 0 1 2 0zM7 8a1 1 0 1 1-2 0 1 1 0 0 1 2 0zm3 0a1 1 0 1 1-2 0 1 1 0 0 1 2 0zm-3 3a1 1 0 1 1-2 0 1 1 0 0 1 2 0zm3 0a1 1 0 1 1-2 0 1 1 0 0 1 2 0zm-3 3a1 1 0 1 1-2 0 1 1 0 0 1 2 0zm3 0a1 1 0 1 1-2 0 1 1 0 0 1 2 0z"/></svg></span>
+        <div class="entry-content">
+            <input type="text" placeholder="Nome do Link (ex: LinkedIn, GitHub)">
+            <input type="text" placeholder="URL do Link">
+        </div>
         <button type="button" class="remove-btn" onclick="this.parentElement.remove()">Remover</button>
     `;
     container.appendChild(newEntry);
@@ -138,9 +147,12 @@ function adicionarFormacao() {
     const newEntry = document.createElement('div');
     newEntry.className = 'formacao-entry';
     newEntry.innerHTML = `
-        <input type="text" placeholder="Curso ou Formação">
-        <input type="text" placeholder="Instituição de Ensino">
-        <input type="text" placeholder="Ano de Conclusão">
+        <span class="drag-handle"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16"><path d="M7 2a1 1 0 1 1-2 0 1 1 0 0 1 2 0zm3 0a1 1 0 1 1-2 0 1 1 0 0 1 2 0zM7 5a1 1 0 1 1-2 0 1 1 0 0 1 2 0zm3 0a1 1 0 1 1-2 0 1 1 0 0 1 2 0zM7 8a1 1 0 1 1-2 0 1 1 0 0 1 2 0zm3 0a1 1 0 1 1-2 0 1 1 0 0 1 2 0zm-3 3a1 1 0 1 1-2 0 1 1 0 0 1 2 0zm3 0a1 1 0 1 1-2 0 1 1 0 0 1 2 0zm-3 3a1 1 0 1 1-2 0 1 1 0 0 1 2 0zm3 0a1 1 0 1 1-2 0 1 1 0 0 1 2 0z"/></svg></span>
+        <div class="entry-content">
+            <input type="text" placeholder="Curso ou Formação">
+            <input type="text" placeholder="Instituição de Ensino">
+            <input type="text" placeholder="Ano de Conclusão">
+        </div>
         <button type="button" class="remove-btn" onclick="this.parentElement.remove()">Remover</button>
     `;
     container.appendChild(newEntry);
@@ -151,7 +163,10 @@ function adicionarHabilidade() {
     const newEntry = document.createElement('div');
     newEntry.className = 'habilidade-entry';
     newEntry.innerHTML = `
-        <input type="text" placeholder="Habilidade (ex: Comunicação, Pacote Office)">
+        <span class="drag-handle"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16"><path d="M7 2a1 1 0 1 1-2 0 1 1 0 0 1 2 0zm3 0a1 1 0 1 1-2 0 1 1 0 0 1 2 0zM7 5a1 1 0 1 1-2 0 1 1 0 0 1 2 0zm3 0a1 1 0 1 1-2 0 1 1 0 0 1 2 0zM7 8a1 1 0 1 1-2 0 1 1 0 0 1 2 0zm3 0a1 1 0 1 1-2 0 1 1 0 0 1 2 0zm-3 3a1 1 0 1 1-2 0 1 1 0 0 1 2 0zm3 0a1 1 0 1 1-2 0 1 1 0 0 1 2 0zm-3 3a1 1 0 1 1-2 0 1 1 0 0 1 2 0zm3 0a1 1 0 1 1-2 0 1 1 0 0 1 2 0z"/></svg></span>
+        <div class="entry-content">
+            <input type="text" placeholder="Habilidade (ex: Comunicação, Pacote Office)">
+        </div>
         <button type="button" class="remove-btn" onclick="this.parentElement.remove()">Remover</button>
     `;
     container.appendChild(newEntry);
@@ -190,11 +205,19 @@ function gerarPreview() {
   const template = document.getElementById('template-select').value;
   const accentColor = document.getElementById('accent-color').value;
   const fontFamily = document.getElementById('font-select').value;
+  const marginValue = document.getElementById('margin-slider').value;
+  const spacingValue = document.getElementById('spacing-slider').value;
+
+  // Update slider value displays
+  document.getElementById('margin-value').textContent = `${marginValue}px`;
+  document.getElementById('spacing-value').textContent = `${spacingValue}px`;
 
   const previewElement = document.getElementById('preview');
 
   // Aplicar customizações
   previewElement.style.setProperty('--accent-color', accentColor);
+  previewElement.style.padding = `30px ${marginValue}px`;
+  previewElement.style.setProperty('--section-spacing', `${spacingValue}px`);
   previewElement.classList.remove('font-lato', 'font-roboto', 'font-merriweather');
   previewElement.classList.add('font-' + fontFamily);
   previewElement.classList.add('template-' + template);
@@ -206,20 +229,34 @@ function gerarPreview() {
   const resumo = document.getElementById('resumo').value;
   const idiomas = document.getElementById('idiomas').value;
   const profilePicUrl = document.getElementById('profilePicUrl').value;
+
+  // Coletar ícones
+  const icons = {
+    email: document.getElementById('email-icon').value,
+    telefone: document.getElementById('telefone-icon').value,
+    resumo: document.getElementById('resumo-icon').value,
+    experiencias: document.getElementById('experiencias-icon').value,
+    formacao: document.getElementById('formacao-icon').value,
+    habilidades: document.getElementById('habilidades-icon').value,
+    idiomas: document.getElementById('idiomas-icon').value,
+    projetos: document.getElementById('projetos-icon').value,
+    links: document.getElementById('links-icon').value
+  };
+  const iconHtml = (iconClass) => iconClass ? `<i class="${iconClass}"></i> ` : '';
   const profilePicHtml = profilePicUrl ? `<img src="${profilePicUrl}" alt="Foto de Perfil" class="profile-pic">` : '';
 
   let html = '';
 
   if (template === 'classico') {
     html = `${profilePicHtml}<h2>${nome}</h2>`;
-    html += `<p><strong>Email:</strong> ${email} | <strong>Telefone:</strong> ${telefone}</p>`;
-    html += `<p><strong>Resumo:</strong> ${resumo}</p>`;
+    html += `<p>${iconHtml(icons.email)}<strong>Email:</strong> ${email} | ${iconHtml(icons.telefone)}<strong>Telefone:</strong> ${telefone}</p>`;
+    if (resumo) html += `<p>${iconHtml(icons.resumo)}${resumo}</p>`;
     html += '<hr>';
 
     // Experiências
     const experiencias = document.querySelectorAll('#experiencias-container .experiencia-entry');
     if (experiencias.length > 0 && experiencias[0].querySelector('input').value) {
-      html += `<h3>Experiências</h3><ul>`;
+      html += `<h3>${iconHtml(icons.experiencias)}Experiências</h3><ul>`;
       experiencias.forEach(entry => {
           const cargo = entry.querySelector('input:nth-child(1)').value;
           const empresa = entry.querySelector('input:nth-child(2)').value;
@@ -234,7 +271,7 @@ function gerarPreview() {
     // Formação Acadêmica
     const formacoes = document.querySelectorAll('#formacao-container .formacao-entry');
     if (formacoes.length > 0 && formacoes[0].querySelector('input').value) {
-      html += `<h3>Formação Acadêmica</h3><ul>`;
+      html += `<h3>${iconHtml(icons.formacao)}Formação Acadêmica</h3><ul>`;
       formacoes.forEach(entry => {
           const curso = entry.querySelector('input:nth-child(1)').value;
           const instituicao = entry.querySelector('input:nth-child(2)').value;
@@ -249,7 +286,7 @@ function gerarPreview() {
     // Habilidades
     const habilidades = document.querySelectorAll('#habilidades-container .habilidade-entry input[type="text"]');
     if (habilidades.length > 0 && habilidades[0].value) {
-      html += `<h3>Habilidades</h3><ul>`;
+      html += `<h3>${iconHtml(icons.habilidades)}Habilidades</h3><ul>`;
       habilidades.forEach(habilidade => {
         if (habilidade.value.trim()) {
           html += `<li>${habilidade.value.trim()}</li>`;
@@ -260,7 +297,7 @@ function gerarPreview() {
 
     // Idiomas
     if (idiomas.trim()) {
-        html += `<h3>Idiomas</h3><ul>`;
+        html += `<h3>${iconHtml(icons.idiomas)}Idiomas</h3><ul>`;
         idiomas.split(',').forEach(i => { if(i.trim()) html += `<li>${i.trim()}</li>`; });
         html += `</ul>`;
     }
@@ -268,7 +305,7 @@ function gerarPreview() {
     // Projetos
     const projetos = document.querySelectorAll('#projetos-container .projeto-entry');
     if (projetos.length > 0 && projetos[0].querySelector('input').value) {
-        html += `<hr><h3>Projetos</h3>`;
+        html += `<hr><h3>${iconHtml(icons.projetos)}Projetos</h3>`;
         projetos.forEach(entry => {
             const nome = entry.querySelector('input:nth-child(1)').value;
             const link = entry.querySelector('input:nth-child(2)').value;
@@ -282,7 +319,7 @@ function gerarPreview() {
     // Links
     const links = document.querySelectorAll('#links-container .link-entry');
     if (links.length > 0 && links[0].querySelector('input').value) {
-        html += `<hr><h3>Links Profissionais</h3><ul>`;
+        html += `<hr><h3>${iconHtml(icons.links)}Links Profissionais</h3><ul>`;
         links.forEach(entry => {
             const nome = entry.querySelector('input:nth-child(1)').value;
             const url = entry.querySelector('input:nth-child(2)').value;
@@ -298,12 +335,12 @@ function gerarPreview() {
         <div class="moderno-sidebar">
             ${profilePicHtml}
             <div class="moderno-contato">
-                <h3>Contato</h3>
+                <h3>${iconHtml(icons.email)}Contato</h3>
                 <p><strong>Email:</strong><br>${email}</p>
                 <p><strong>Telefone:</strong><br>${telefone}</p>
             </div>
             <div class="moderno-habilidades">
-                <h3>Habilidades</h3>
+                <h3>${iconHtml(icons.habilidades)}Habilidades</h3>
                 <ul>
                     ${Array.from(document.querySelectorAll('#habilidades-container .habilidade-entry input[type="text"]'))
                              .map(h => h.value.trim() ? `<li>${h.value.trim()}</li>` : '')
@@ -311,7 +348,7 @@ function gerarPreview() {
                 </ul>
             </div>
             <div class="moderno-idiomas">
-                <h3>Idiomas</h3>
+                <h3>${iconHtml(icons.idiomas)}Idiomas</h3>
                 <ul>
                     ${idiomas.trim() ? idiomas.split(',').map(i => i.trim() ? `<li>${i.trim()}</li>` : '').join('') : ''}
                 </ul>
@@ -322,11 +359,11 @@ function gerarPreview() {
                 <h2>${nome}</h2>
             </div>
             <div class="moderno-resumo">
-                <h3>Resumo Profissional</h3>
+                <h3>${iconHtml(icons.resumo)}Resumo Profissional</h3>
                 <p>${resumo}</p>
             </div>
             <div class="moderno-experiencia">
-                <h3>Experiências</h3>
+                <h3>${iconHtml(icons.experiencias)}Experiências</h3>
                 ${Array.from(document.querySelectorAll('#experiencias-container .experiencia-entry'))
                          .map(entry => {
                             const cargo = entry.querySelector('input:nth-child(1)').value;
@@ -336,7 +373,7 @@ function gerarPreview() {
                          }).join('')}
             </div>
             <div class="moderno-formacao">
-                <h3>Formação Acadêmica</h3>
+                <h3>${iconHtml(icons.formacao)}Formação Acadêmica</h3>
                 ${Array.from(document.querySelectorAll('#formacao-container .formacao-entry'))
                          .map(entry => {
                             const curso = entry.querySelector('input:nth-child(1)').value;
@@ -346,7 +383,7 @@ function gerarPreview() {
                          }).join('')}
             </div>
             <div class="moderno-projetos">
-                <h3>Projetos</h3>
+                <h3>${iconHtml(icons.projetos)}Projetos</h3>
                 ${Array.from(document.querySelectorAll('#projetos-container .projeto-entry'))
                          .map(entry => {
                             const nome = entry.querySelector('input:nth-child(1)').value;
@@ -356,7 +393,7 @@ function gerarPreview() {
                          }).join('')}
             </div>
              <div class="moderno-links">
-                <h3>Links</h3>
+                <h3>${iconHtml(icons.links)}Links</h3>
                 <ul>
                 ${Array.from(document.querySelectorAll('#links-container .link-entry'))
                          .map(entry => {
@@ -376,12 +413,69 @@ function gerarPreview() {
 // Exportar PDF
 function exportarPDF() {
   const element = document.getElementById('preview');
-  html2pdf().set({margin:0.5, filename:'curriculo.pdf', html2canvas:{scale:2}}).from(element).save();
+
+  // Clone the element to avoid side-effects
+  const elementClone = element.cloneNode(true);
+
+  // We need to append it to the body temporarily for rendering, but make it invisible
+  elementClone.style.position = 'absolute';
+  elementClone.style.left = '-9999px';
+  elementClone.style.width = element.offsetWidth + 'px'; // Match the width
+  document.body.appendChild(elementClone);
+
+  const images = elementClone.getElementsByTagName('img');
+  const promises = [];
+  for (let i = 0; i < images.length; i++) {
+    const img = images[i];
+    // Create a new image to bypass cache and force load event
+    const newImg = new Image();
+    newImg.crossOrigin = 'Anonymous'; // Handle CORS
+
+    promises.push(new Promise((resolve, reject) => {
+      newImg.onload = resolve;
+      newImg.onerror = reject;
+    }));
+    newImg.src = img.src;
+  }
+
+  Promise.all(promises).then(() => {
+    const opt = {
+      margin:       0.5,
+      filename:     'curriculo.pdf',
+      image:        { type: 'jpeg', quality: 0.98 },
+      html2canvas:  { scale: 2, useCORS: true, allowTaint: true, logging: false },
+      jsPDF:        { unit: 'in', format: 'letter', orientation: 'portrait' }
+    };
+
+    html2pdf().from(elementClone).set(opt).save().then(() => {
+        // Clean up the cloned element from the DOM
+        document.body.removeChild(elementClone);
+    });
+
+  }).catch(err => {
+    console.error("Erro ao carregar imagens para exportação PDF:", err);
+    alert("Não foi possível exportar para PDF. Uma imagem pode não ter sido carregada corretamente.");
+    document.body.removeChild(elementClone); // Cleanup on error too
+  });
+}
+
+// Helper para converter URL de imagem para Base64
+async function imageUrlToBase64(url) {
+    // Adiciona um parâmetro para evitar problemas de cache com CORS
+    const response = await fetch(url, { cache: 'no-cache' });
+    const blob = await response.blob();
+    return new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onloadend = () => resolve(reader.result);
+        reader.onerror = reject;
+        reader.readAsDataURL(blob);
+    });
 }
 
 // Exportar DOCX
 async function exportarDOCX() {
     const previewElement = document.getElementById('preview');
+    const elementClone = previewElement.cloneNode(true);
 
     if (typeof docshift === 'undefined') {
         alert('A biblioteca de exportação DOCX não foi carregada. Tente recarregar a página.');
@@ -389,7 +483,23 @@ async function exportarDOCX() {
     }
 
     try {
-        const docxBlob = await docshift.toDocx(previewElement.innerHTML);
+        const images = Array.from(elementClone.getElementsByTagName('img'));
+        const conversionPromises = images.map(async (img) => {
+            if (img.src && img.src.startsWith('http')) {
+                try {
+                    // Usar um proxy CORS se necessário, mas primeiro tentar direto
+                    const dataUrl = await imageUrlToBase64(img.src);
+                    img.src = dataUrl;
+                } catch (e) {
+                    console.error('Não foi possível converter a imagem para Base64:', img.src, e);
+                    img.style.display = 'none'; // Oculta a imagem se a conversão falhar
+                }
+            }
+        });
+
+        await Promise.all(conversionPromises);
+
+        const docxBlob = await docshift.toDocx(elementClone.innerHTML);
 
         const url = URL.createObjectURL(docxBlob);
         const a = document.createElement('a');
@@ -453,6 +563,19 @@ function salvarCurriculo() {
         template: document.getElementById('template-select').value,
         accentColor: document.getElementById('accent-color').value,
         fontFamily: document.getElementById('font-select').value,
+        marginValue: document.getElementById('margin-slider').value,
+        spacingValue: document.getElementById('spacing-slider').value,
+        icons: {
+            email: document.getElementById('email-icon').value,
+            telefone: document.getElementById('telefone-icon').value,
+            resumo: document.getElementById('resumo-icon').value,
+            experiencias: document.getElementById('experiencias-icon').value,
+            formacao: document.getElementById('formacao-icon').value,
+            habilidades: document.getElementById('habilidades-icon').value,
+            idiomas: document.getElementById('idiomas-icon').value,
+            projetos: document.getElementById('projetos-icon').value,
+            links: document.getElementById('links-icon').value
+        },
         nome: document.getElementById('nome').value,
         email: document.getElementById('email').value,
         telefone: document.getElementById('telefone').value,
@@ -585,6 +708,21 @@ function carregarCurriculo() {
             document.getElementById('template-select').value = cv.template || 'classico';
             document.getElementById('accent-color').value = cv.accentColor || '#4a90e2';
             document.getElementById('font-select').value = cv.fontFamily || 'lato';
+            document.getElementById('margin-slider').value = cv.marginValue || '30';
+            document.getElementById('spacing-slider').value = cv.spacingValue || '25';
+
+            if (cv.icons) {
+                document.getElementById('email-icon').value = cv.icons.email || '';
+                document.getElementById('telefone-icon').value = cv.icons.telefone || '';
+                document.getElementById('resumo-icon').value = cv.icons.resumo || '';
+                document.getElementById('experiencias-icon').value = cv.icons.experiencias || '';
+                document.getElementById('formacao-icon').value = cv.icons.formacao || '';
+                document.getElementById('habilidades-icon').value = cv.icons.habilidades || '';
+                document.getElementById('idiomas-icon').value = cv.icons.idiomas || '';
+                document.getElementById('projetos-icon').value = cv.icons.projetos || '';
+                document.getElementById('links-icon').value = cv.icons.links || '';
+            }
+
             document.getElementById('nome').value = cv.nome || '';
             document.getElementById('email').value = cv.email || '';
             document.getElementById('telefone').value = cv.telefone || '';
@@ -711,6 +849,7 @@ function inicializarArrastarESoltar() {
     const options = {
         animation: 150,
         ghostClass: 'sortable-ghost',
+        handle: '.drag-handle', // Define a alça de arraste
         onEnd: gerarPreview // Atualiza o preview ao final do arraste
     };
 
