@@ -1,0 +1,103 @@
+body { font-family: Arial, sans-serif; margin:0; padding:0; background:#f0f2f5; color:#333; }
+header { background:#4a90e2; color:white; padding:20px; text-align:center; }
+main { max-width:900px; margin:20px auto; padding:20px; background:white; border-radius:8px; box-shadow:0 2px 8px rgba(0,0,0,0.1);}
+h2 { color:#4a90e2; }
+label { display:block; margin-top:10px; font-weight:bold; }
+input, textarea, select { width:100%; padding:8px; margin-top:4px; border-radius:4px; border:1px solid #ccc; box-sizing:border-box; }
+button { margin-top:15px; padding:10px 20px; background:#4a90e2; color:white; border:none; border-radius:5px; cursor:pointer; font-size:16px; }
+button:hover { background:#357ab8; }
+#preview { margin-top:20px; padding:15px; border:1px solid #ccc; border-radius:5px; background:#fafafa; }
+#preview h3 { margin-top:0; }
+#loginStatus { text-align:right; margin-bottom:10px; }
+
+/* Estilos para campos dinâmicos */
+.experiencia-entry, .formacao-entry, .habilidade-entry {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-start;
+  gap: 10px;
+  margin-bottom: 10px;
+  border: 1px solid #eee;
+  padding: 10px;
+  border-radius: 4px;
+  background-color: #fdfdfd;
+}
+
+.experiencia-entry input, .experiencia-entry textarea,
+.formacao-entry input, .habilidade-entry input {
+  flex: 1 1 150px; /* Allow wrapping */
+  margin-bottom: 5px;
+}
+
+.experiencia-entry textarea {
+  width: 100%;
+  flex-basis: 100%;
+}
+
+.remove-btn {
+    background-color: #e74c3c;
+    color: white;
+    border: none;
+    padding: 8px 12px;
+    border-radius: 4px;
+    cursor: pointer;
+    margin-left: auto; /* Push remove button to the right */
+    flex-shrink: 0;
+}
+
+.remove-btn:hover {
+    background-color: #c0392b;
+}
+
+/* --- Estilos da Área de Preview --- */
+#preview {
+    background: white;
+    padding: 30px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+    border-radius: 8px;
+    border: none;
+}
+
+#preview.template-classico h2 {
+    color: #2c3e50;
+    border-bottom: 2px solid #4a90e2;
+    padding-bottom: 10px;
+    margin-bottom: 15px;
+    font-size: 1.8em;
+}
+
+#preview.template-classico h3 {
+    color: #4a90e2;
+    margin-top: 25px;
+    margin-bottom: 10px;
+    font-size: 1.2em;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+#preview.template-classico p, #preview.template-classico li {
+    line-height: 1.7;
+    color: #555;
+}
+
+#preview.template-classico ul {
+    list-style-type: none;
+    padding-left: 0;
+}
+
+#preview.template-classico li {
+    margin-bottom: 15px;
+    padding-left: 15px;
+    border-left: 3px solid #bdc3c7;
+}
+
+#preview.template-classico strong {
+    color: #34495e;
+}
+
+#preview.template-classico hr {
+    border: 0;
+    height: 1px;
+    background-color: #ecf0f1;
+    margin: 25px 0;
+}

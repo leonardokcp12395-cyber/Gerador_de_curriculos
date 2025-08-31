@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Gerador de Currículos Profissional</title>
 
-<!-- Firebase compatível para HTML puro -->
+<!-- Firebase -->
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
@@ -13,19 +13,9 @@
 <!-- html2pdf -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
 
-<style>
-body { font-family: Arial, sans-serif; margin:0; padding:0; background:#f0f2f5; color:#333; }
-header { background:#4a90e2; color:white; padding:20px; text-align:center; }
-main { max-width:900px; margin:20px auto; padding:20px; background:white; border-radius:8px; box-shadow:0 2px 8px rgba(0,0,0,0.1);}
-h2 { color:#4a90e2; }
-label { display:block; margin-top:10px; font-weight:bold; }
-input, textarea, select { width:100%; padding:8px; margin-top:4px; border-radius:4px; border:1px solid #ccc; box-sizing:border-box; }
-button { margin-top:15px; padding:10px 20px; background:#4a90e2; color:white; border:none; border-radius:5px; cursor:pointer; font-size:16px; }
-button:hover { background:#357ab8; }
-#preview { margin-top:20px; padding:15px; border:1px solid #ccc; border-radius:5px; background:#fafafa; }
-#preview h3 { margin-top:0; }
-#loginStatus { text-align:right; margin-bottom:10px; }
-</style>
+<!-- Custom CSS -->
+<link rel="stylesheet" href="style.css">
+
 </head>
 <body>
 
@@ -40,8 +30,21 @@ button:hover { background:#357ab8; }
     <button id="logoutBtn" onclick="logout()" style="display:none;">Logout</button>
   </div>
 
+  <div id="savedCvArea" style="display:none; margin-top: 20px; padding: 15px; background-color: #f7f7f7; border-radius: 8px;">
+      <h4>Meus Currículos Salvos</h4>
+      <select id="savedCvSelect" style="width: 70%;"></select>
+      <button type="button" onclick="carregarCurriculo()">Carregar</button>
+      <button type="button" class="remove-btn" onclick="deletarCurriculo()">Deletar</button>
+  </div>
+
   <h2>Preencha seus dados</h2>
   <form id="cvForm">
+    <label for="template-select">Escolha um Modelo:</label>
+    <select id="template-select" name="template-select">
+        <option value="classico">Clássico</option>
+        <option value="moderno" disabled>Moderno (Premium)</option>
+    </select>
+
     <label>Nome</label>
     <input type="text" id="nome" placeholder="Seu nome completo">
 
@@ -52,18 +55,27 @@ button:hover { background:#357ab8; }
     <textarea id="resumo" rows="3" placeholder="Breve descrição sobre você"></textarea>
 
     <label>Experiências</label>
-    <textarea id="experiencias" rows="4" placeholder="Experiências profissionais separadas por vírgula"></textarea>
+    <div id="experiencias-container">
+      <!-- Entradas de experiência serão adicionadas aqui -->
+    </div>
+    <button type="button" onclick="adicionarExperiencia()">Adicionar Experiência</button>
 
     <label>Formação Acadêmica</label>
-    <textarea id="formacao" rows="3" placeholder="Cursos, instituições e datas"></textarea>
+    <div id="formacao-container">
+      <!-- Entradas de formação serão adicionadas aqui -->
+    </div>
+    <button type="button" onclick="adicionarFormacao()">Adicionar Formação</button>
 
     <label>Habilidades</label>
-    <input type="text" id="habilidades" placeholder="Ex.: Python, Excel, Comunicação">
+    <div id="habilidades-container">
+        <!-- Entradas de habilidades serão adicionadas aqui -->
+    </div>
+    <button type="button" onclick="adicionarHabilidade()">Adicionar Habilidade</button>
 
     <label>Idiomas</label>
     <input type="text" id="idiomas" placeholder="Ex.: Inglês - Avançado, Espanhol - Intermediário">
 
-    <button type="button" onclick="gerarPreview()">Gerar Preview</button>
+    <button type="button" onclick="salvarCurriculo()">Salvar Currículo</button>
     <button type="button" onclick="exportarPDF()">Exportar PDF</button>
     <button type="button" onclick="comprarPremium()">Comprar Premium</button>
   </form>
@@ -74,123 +86,8 @@ button:hover { background:#357ab8; }
   </div>
 </main>
 
-<script>
-// Firebase Config com suas chaves
-const firebaseConfig = {
-  apiKey: "AIzaSyBxkmzxao2HOnGsb2Y2R7W0q9FnYdt8dJE",
-  authDomain: "gerador-de-curriculos-online.firebaseapp.com",
-  projectId: "gerador-de-curriculos-online",
-  storageBucket: "gerador-de-curriculos-online.firebasestorage.app",
-  messagingSenderId: "114021870709",
-  appId: "1:114021870709:web:f73b2d837bb4b5dd7adc3c",
-  measurementId: "G-HLWH9KSK0B"
-};
-
-// Inicializar Firebase
-firebase.initializeApp(firebaseConfig);
-const auth = firebase.auth();
-const db = firebase.firestore();
-
-// Login Google
-function loginGoogle() {
-  const provider = new firebase.auth.GoogleAuthProvider();
-  auth.signInWithPopup(provider)
-    .then(result => {
-      document.getElementById('userEmail').innerText = result.user.email;
-      document.getElementById('loginBtn').style.display = 'none';
-      document.getElementById('logoutBtn').style.display = 'inline';
-    })
-    .catch(error => alert(error.message));
-}
-
-function logout() {
-  auth.signOut().then(() => {
-    document.getElementById('userEmail').innerText = '';
-    document.getElementById('loginBtn').style.display = 'inline';
-    document.getElementById('logoutBtn').style.display = 'none';
-  });
-}
-
-// Monitor login status
-auth.onAuthStateChanged(user => {
-  if(user){
-    document.getElementById('userEmail').innerText = user.email;
-    document.getElementById('loginBtn').style.display = 'none';
-    document.getElementById('logoutBtn').style.display = 'inline';
-  } else {
-    document.getElementById('userEmail').innerText = '';
-    document.getElementById('loginBtn').style.display = 'inline';
-    document.getElementById('logoutBtn').style.display = 'none';
-  }
-});
-
-// Gerar Preview
-function gerarPreview() {
-  const nome = document.getElementById('nome').value;
-  const contato = document.getElementById('contato').value;
-  const resumo = document.getElementById('resumo').value;
-  const experiencias = document.getElementById('experiencias').value.split(',');
-  const formacao = document.getElementById('formacao').value.split(',');
-  const habilidades = document.getElementById('habilidades').value.split(',');
-  const idiomas = document.getElementById('idiomas').value.split(',');
-
-  let html = `<h2>${nome}</h2>`;
-  html += `<p><strong>Contato:</strong> ${contato}</p>`;
-  html += `<p><strong>Resumo:</strong> ${resumo}</p>`;
-
-  html += `<h3>Experiências</h3><ul>`;
-  experiencias.forEach(exp => { if(exp.trim()) html += `<li>${exp.trim()}</li>`; });
-  html += `</ul>`;
-
-  html += `<h3>Formação Acadêmica</h3><ul>`;
-  formacao.forEach(f => { if(f.trim()) html += `<li>${f.trim()}</li>`; });
-  html += `</ul>`;
-
-  html += `<h3>Habilidades</h3><ul>`;
-  habilidades.forEach(h => { if(h.trim()) html += `<li>${h.trim()}</li>`; });
-  html += `</ul>`;
-
-  html += `<h3>Idiomas</h3><ul>`;
-  idiomas.forEach(i => { if(i.trim()) html += `<li>${i.trim()}</li>`; });
-  html += `</ul>`;
-
-  document.getElementById('preview').innerHTML = html;
-}
-
-// Exportar PDF
-function exportarPDF() {
-  const element = document.getElementById('preview');
-  html2pdf().set({margin:0.5, filename:'curriculo.pdf', html2canvas:{scale:2}}).from(element).save();
-}
-
-// Comprar Premium
-function comprarPremium() {
-  const user = auth.currentUser;
-  if(!user){
-    alert("Você precisa fazer login para comprar Premium.");
-    loginGoogle(); // Depois de logar, o usuário pode tentar comprar de novo
-    return;
-  }
-
-  // Simulação de compra Premium
-  db.collection('usuarios').doc(user.uid).set({premium:true}, {merge:true})
-    .then(()=>alert("Premium ativado! Você agora tem acesso aos modelos extras e sem anúncios."))
-    .catch(err=>alert("Erro: "+err));
-}
-
-// Check Premium
-auth.onAuthStateChanged(user => {
-  if(user){
-    db.collection('usuarios').doc(user.uid).get()
-      .then(doc => {
-        if(doc.exists && doc.data().premium){
-          alert("Você já é usuário Premium! Modelos extras liberados.");
-          // Aqui você poderia desbloquear recursos extras no site
-        }
-      });
-  }
-});
-</script>
+<!-- Custom JS -->
+<script src="script.js"></script>
 
 </body>
 </html>
