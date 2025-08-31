@@ -1,5 +1,7 @@
-body { font-family: Arial, sans-serif; margin:0; padding:0; background:#f0f2f5; color:#333; }
-header { background:#4a90e2; color:white; padding:20px; text-align:center; }
+@import url('https://fonts.googleapis.com/css2?family=Lato:wght@300;400;700&display=swap');
+
+body { font-family: 'Lato', sans-serif; margin:0; padding:0; background:#f0f2f5; color:#333; }
+header { background:#2c3e50; color:white; padding:20px; text-align:center; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
 main { max-width:900px; margin:20px auto; padding:20px; background:white; border-radius:8px; box-shadow:0 2px 8px rgba(0,0,0,0.1);}
 h2 { color:#4a90e2; }
 label { display:block; margin-top:10px; font-weight:bold; }
@@ -100,4 +102,156 @@ button:hover { background:#357ab8; }
     height: 1px;
     background-color: #ecf0f1;
     margin: 25px 0;
+}
+
+/* --- Template Moderno --- */
+#preview.template-moderno {
+    display: flex;
+    font-family: 'Lato', sans-serif;
+    background-color: #ffffff;
+    min-height: 800px; /* Give it some height */
+}
+
+.template-moderno .moderno-sidebar {
+    width: 35%;
+    background-color: #2c3e50;
+    color: white;
+    padding: 30px;
+    box-sizing: border-box;
+}
+
+.template-moderno .moderno-sidebar h3 {
+    color: #ecf0f1;
+    font-size: 1.1em;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    border-bottom: 1px solid #7f8c8d;
+    padding-bottom: 5px;
+    margin-top: 20px;
+}
+
+.template-moderno .moderno-sidebar p {
+    color: #bdc3c7;
+    line-height: 1.6;
+    font-size: 0.9em;
+    word-wrap: break-word;
+}
+
+.template-moderno .moderno-sidebar ul {
+    list-style: none;
+    padding: 0;
+}
+
+.template-moderno .moderno-sidebar li {
+    color: #bdc3c7;
+    margin-bottom: 5px;
+}
+
+.template-moderno .moderno-main {
+    width: 65%;
+    padding: 30px;
+    box-sizing: border-box;
+}
+
+.template-moderno .moderno-main h2 {
+    font-size: 2.5em;
+    color: #2c3e50;
+    margin: 0 0 20px 0;
+    padding: 0;
+    border: none;
+}
+
+.template-moderno .moderno-main h3 {
+    color: #2980b9;
+    font-size: 1.3em;
+    border-bottom: 2px solid #ecf0f1;
+    padding-bottom: 8px;
+    margin-top: 20px;
+    margin-bottom: 15px;
+    text-transform: uppercase;
+}
+
+.template-moderno .job, .template-moderno .education {
+    margin-bottom: 20px;
+}
+
+.template-moderno .job h4, .template-moderno .education h4 {
+    margin: 0;
+    color: #34495e;
+    font-weight: 700;
+    font-size: 1.1em;
+}
+
+.template-moderno .job h5, .template-moderno .education h5 {
+    margin: 2px 0 5px 0;
+    color: #7f8c8d;
+    font-weight: 400;
+    font-style: italic;
+}
+
+.template-moderno .job p {
+    margin: 5px 0 0 0;
+    color: #555;
+    line-height: 1.5;
+}
+
+/* --- Estilos da Foto de Perfil --- */
+.profile-pic {
+    border-radius: 50%;
+    width: 120px;
+    height: 120px;
+    object-fit: cover;
+    margin-bottom: 15px;
+    border: 3px solid #ecf0f1;
+}
+
+#preview.template-classico .profile-pic {
+    float: right;
+    margin-left: 20px;
+}
+
+#preview.template-moderno .profile-pic {
+    display: block;
+    margin-left: auto;
+    margin-right: auto;
+    border-color: #7f8c8d;
+}
+
+/* --- Estilos para Novas Seções Dinâmicas --- */
+.projeto-entry, .link-entry {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-start;
+  gap: 10px;
+  margin-bottom: 10px;
+  border: 1px solid #eee;
+  padding: 10px;
+  border-radius: 4px;
+  background-color: #fdfdfd;
+}
+
+.projeto-entry input, .projeto-entry textarea,
+.link-entry input {
+  flex: 1 1 150px;
+  margin-bottom: 5px;
+}
+
+.projeto-entry textarea {
+  width: 100%;
+  flex-basis: 100%;
+}
+
+.form-actions {
+    margin-top: 25px;
+    border-top: 1px solid #ecf0f1;
+    padding-top: 20px;
+    display: flex;
+    gap: 10px;
+    justify-content: flex-end;
+}
+
+/* Estilo para o placeholder do SortableJS */
+.sortable-ghost {
+    opacity: 0.4;
+    background-color: #cce5ff; /* Um azul claro para indicar a área de drop */
 }
