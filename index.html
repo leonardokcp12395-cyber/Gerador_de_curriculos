@@ -40,11 +40,27 @@
 
   <h2>Preencha seus dados</h2>
   <form id="cvForm">
-    <label for="template-select">Escolha um Modelo:</label>
-    <select id="template-select" name="template-select">
-        <option value="classico">Clássico</option>
-        <option value="moderno" disabled>Moderno (Premium)</option>
-    </select>
+    <div class="layout-controls">
+        <div>
+            <label for="template-select">Modelo</label>
+            <select id="template-select" name="template-select">
+                <option value="classico">Clássico</option>
+                <option value="moderno" disabled>Moderno (Premium)</option>
+            </select>
+        </div>
+        <div>
+            <label for="accent-color">Cor Destaque</label>
+            <input type="color" id="accent-color" value="#4a90e2">
+        </div>
+        <div>
+            <label for="font-select">Fonte</label>
+            <select id="font-select">
+                <option value="lato">Lato</option>
+                <option value="roboto">Roboto</option>
+                <option value="merriweather">Merriweather</option>
+            </select>
+        </div>
+    </div>
 
     <label>Nome</label>
     <input type="text" id="nome" placeholder="Seu nome completo">
@@ -54,8 +70,13 @@
     <img id="profilePicPreview" src="" alt="Preview da Foto" style="max-width: 100px; border-radius: 50%; margin-top: 10px; display: none;">
     <input type="hidden" id="profilePicUrl" value="">
 
-    <label>Contato</label>
-    <input type="text" id="contato" placeholder="Email, telefone">
+    <label>Email</label>
+    <input type="email" id="email" placeholder="seu@email.com">
+    <span class="error-message" id="email-error"></span>
+
+    <label>Telefone</label>
+    <input type="tel" id="telefone" placeholder="(11) 99999-9999">
+    <span class="error-message" id="telefone-error"></span>
 
     <label>Resumo Profissional</label>
     <textarea id="resumo" rows="3" placeholder="Breve descrição sobre você"></textarea>
@@ -94,8 +115,11 @@
     <button type="button" onclick="adicionarLink()">Adicionar Link</button>
 
     <div class="form-actions">
-        <button type="button" onclick="salvarCurriculo()">Salvar Currículo</button>
+        <button type="button" onclick="novoCurriculo()">Novo Currículo</button>
+        <button type="button" onclick="salvarCurriculo()">Salvar Alterações</button>
+        <button type="button" onclick="salvarComoNovo()">Salvar como Novo</button>
         <button type="button" onclick="exportarPDF()">Exportar PDF</button>
+        <button type="button" onclick="exportarDOCX()">Exportar DOCX</button>
         <button type="button" onclick="comprarPremium()">Comprar Premium</button>
     </div>
   </form>
@@ -108,6 +132,9 @@
 
 <!-- SortableJS Library -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Sortable/1.15.2/Sortable.min.js"></script>
+
+<!-- Docshift (HTML to DOCX) Library -->
+<script src="https://cdn.jsdelivr.net/npm/docshift@latest/dist/docshift.min.js"></script>
 
 <!-- Custom JS -->
 <script src="script.js"></script>

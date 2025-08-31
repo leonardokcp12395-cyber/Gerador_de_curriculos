@@ -158,14 +158,51 @@ function adicionarHabilidade() {
 }
 
 
+// --- Validação ---
+function validarCampos() {
+    const emailInput = document.getElementById('email');
+    const telefoneInput = document.getElementById('telefone');
+    const emailError = document.getElementById('email-error');
+    const telefoneError = document.getElementById('telefone-error');
+
+    // Regex para email
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    const isEmailValid = emailRegex.test(emailInput.value) || emailInput.value.trim() === '';
+
+    // Validação de Email
+    if (isEmailValid) {
+        emailInput.classList.remove('error');
+        emailError.textContent = '';
+    } else {
+        emailInput.classList.add('error');
+        emailError.textContent = 'Formato de email inválido.';
+    }
+
+    // Para o telefone, não faremos validação de formato por enquanto, apenas estrutural.
+    // A validação pode ser adicionada aqui no futuro se necessário.
+}
+
+
 // Gerar Preview
 function gerarPreview() {
+  validarCampos(); // Executa a validação a cada atualização
+
   const template = document.getElementById('template-select').value;
+  const accentColor = document.getElementById('accent-color').value;
+  const fontFamily = document.getElementById('font-select').value;
+
   const previewElement = document.getElementById('preview');
-  previewElement.className = 'template-' + template;
+
+  // Aplicar customizações
+  previewElement.style.setProperty('--accent-color', accentColor);
+  previewElement.classList.remove('font-lato', 'font-roboto', 'font-merriweather');
+  previewElement.classList.add('font-' + fontFamily);
+  previewElement.classList.add('template-' + template);
+
 
   const nome = document.getElementById('nome').value;
-  const contato = document.getElementById('contato').value;
+  const email = document.getElementById('email').value;
+  const telefone = document.getElementById('telefone').value;
   const resumo = document.getElementById('resumo').value;
   const idiomas = document.getElementById('idiomas').value;
   const profilePicUrl = document.getElementById('profilePicUrl').value;
@@ -175,7 +212,7 @@ function gerarPreview() {
 
   if (template === 'classico') {
     html = `${profilePicHtml}<h2>${nome}</h2>`;
-    html += `<p><strong>Contato:</strong> ${contato}</p>`;
+    html += `<p><strong>Email:</strong> ${email} | <strong>Telefone:</strong> ${telefone}</p>`;
     html += `<p><strong>Resumo:</strong> ${resumo}</p>`;
     html += '<hr>';
 
@@ -262,7 +299,8 @@ function gerarPreview() {
             ${profilePicHtml}
             <div class="moderno-contato">
                 <h3>Contato</h3>
-                <p>${contato.replace(/\n/g, '<br>')}</p>
+                <p><strong>Email:</strong><br>${email}</p>
+                <p><strong>Telefone:</strong><br>${telefone}</p>
             </div>
             <div class="moderno-habilidades">
                 <h3>Habilidades</h3>
@@ -341,7 +379,68 @@ function exportarPDF() {
   html2pdf().set({margin:0.5, filename:'curriculo.pdf', html2canvas:{scale:2}}).from(element).save();
 }
 
+// Exportar DOCX
+async function exportarDOCX() {
+    const previewElement = document.getElementById('preview');
+
+    if (typeof docshift === 'undefined') {
+        alert('A biblioteca de exportação DOCX não foi carregada. Tente recarregar a página.');
+        return;
+    }
+
+    try {
+        const docxBlob = await docshift.toDocx(previewElement.innerHTML);
+
+        const url = URL.createObjectURL(docxBlob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = 'curriculo.docx';
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        URL.revokeObjectURL(url);
+
+    } catch (error) {
+        console.error('Erro ao exportar para DOCX:', error);
+        alert('Ocorreu um erro ao gerar o arquivo DOCX.');
+    }
+}
+
 // --- Funções de Persistência (Salvar/Carregar) ---
+
+function novoCurriculo() {
+    // Limpa o formulário para um novo currículo
+    document.getElementById('cvForm').reset();
+    document.getElementById('profilePicUrl').value = '';
+    document.getElementById('profilePicPreview').src = '';
+    document.getElementById('profilePicPreview').style.display = 'none';
+
+    // Limpa os containers dinâmicos
+    document.getElementById('experiencias-container').innerHTML = '';
+    document.getElementById('formacao-container').innerHTML = '';
+    document.getElementById('habilidades-container').innerHTML = '';
+    document.getElementById('projetos-container').innerHTML = '';
+    document.getElementById('links-container').innerHTML = '';
+
+    // Limpa a seleção do currículo salvo
+    document.getElementById('savedCvSelect').value = '';
+
+    // Adiciona um conjunto de campos em branco para começar
+    adicionarExperiencia();
+    adicionarFormacao();
+    adicionarHabilidade();
+    adicionarProjeto();
+    adicionarLink();
+
+    gerarPreview();
+    alert("Formulário limpo. Pronto para um novo currículo!");
+}
+
+function salvarComoNovo() {
+    // Força a criação de um novo currículo limpando o ID selecionado
+    document.getElementById('savedCvSelect').value = '';
+    salvarCurriculo();
+}
 
 function salvarCurriculo() {
     const user = auth.currentUser;
@@ -352,8 +451,11 @@ function salvarCurriculo() {
 
     const curriculoData = {
         template: document.getElementById('template-select').value,
+        accentColor: document.getElementById('accent-color').value,
+        fontFamily: document.getElementById('font-select').value,
         nome: document.getElementById('nome').value,
-        contato: document.getElementById('contato').value,
+        email: document.getElementById('email').value,
+        telefone: document.getElementById('telefone').value,
         resumo: document.getElementById('resumo').value,
         idiomas: document.getElementById('idiomas').value,
         profilePicUrl: document.getElementById('profilePicUrl').value,
@@ -398,28 +500,47 @@ function salvarCurriculo() {
         });
     });
 
-    db.collection('usuarios').doc(user.uid).collection('curriculos').add(curriculoData)
-        .then(() => {
-            alert(`Currículo salvo com sucesso!`);
-            carregarListaCurriculos(); // Atualiza a lista
-        })
-        .catch(error => console.error("Erro ao salvar: ", error));
+    const cvId = document.getElementById('savedCvSelect').value;
+
+    if (cvId) {
+        // Atualizar currículo existente
+        db.collection('usuarios').doc(user.uid).collection('curriculos').doc(cvId).set(curriculoData, { merge: true })
+            .then(() => {
+                alert(`Currículo atualizado com sucesso!`);
+                carregarListaCurriculos(); // Atualiza a lista para refletir a nova data
+            })
+            .catch(error => console.error("Erro ao atualizar: ", error));
+    } else {
+        // Adicionar novo currículo
+        db.collection('usuarios').doc(user.uid).collection('curriculos').add(curriculoData)
+            .then((docRef) => {
+                alert(`Currículo salvo com sucesso!`);
+                // Seleciona o novo currículo na lista
+                carregarListaCurriculos().then(() => {
+                    document.getElementById('savedCvSelect').value = docRef.id;
+                });
+            })
+            .catch(error => console.error("Erro ao salvar: ", error));
+    }
 }
 
 function carregarListaCurriculos() {
     const user = auth.currentUser;
-    if (!user) return;
+    if (!user) return Promise.resolve(); // Return a resolved promise if no user
 
     const savedCvArea = document.getElementById('savedCvArea');
     const select = document.getElementById('savedCvSelect');
+    const currentVal = select.value; // Preserve current selection
     select.innerHTML = '<option value="">Selecione um currículo...</option>';
 
-    db.collection('usuarios').doc(user.uid).collection('curriculos').orderBy('salvoEm', 'desc').get()
+    // Return the promise chain
+    return db.collection('usuarios').doc(user.uid).collection('curriculos').orderBy('salvoEm', 'desc').get()
         .then(snapshot => {
             if (snapshot.empty) {
                 savedCvArea.style.display = 'none';
                 return;
             }
+
             snapshot.forEach(doc => {
                 const cv = doc.data();
                 const option = document.createElement('option');
@@ -429,6 +550,14 @@ function carregarListaCurriculos() {
                 select.appendChild(option);
             });
             savedCvArea.style.display = 'block';
+            if (document.querySelector(`#savedCvSelect option[value='${currentVal}']`)) {
+                select.value = currentVal; // Restore selection if it still exists
+            }
+        })
+        .catch(error => {
+            console.error("Erro ao carregar lista de currículos: ", error);
+            // Re-throw the error so the caller knows something went wrong
+            throw error;
         });
 }
 
@@ -454,8 +583,11 @@ function carregarCurriculo() {
 
             // Preencher campos
             document.getElementById('template-select').value = cv.template || 'classico';
+            document.getElementById('accent-color').value = cv.accentColor || '#4a90e2';
+            document.getElementById('font-select').value = cv.fontFamily || 'lato';
             document.getElementById('nome').value = cv.nome || '';
-            document.getElementById('contato').value = cv.contato || '';
+            document.getElementById('email').value = cv.email || '';
+            document.getElementById('telefone').value = cv.telefone || '';
             document.getElementById('resumo').value = cv.resumo || '';
             document.getElementById('idiomas').value = cv.idiomas || '';
             document.getElementById('profilePicUrl').value = cv.profilePicUrl || '';
