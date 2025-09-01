@@ -426,23 +426,23 @@ async function exportarPDF() {
     await document.fonts.ready;
     console.log("Fonts loaded for PDF export.");
 
-    // 2. Wait for all images to be loaded
-    const images = elementClone.getElementsByTagName('img');
-    const promises = [];
-    for (let i = 0; i < images.length; i++) {
-        const img = images[i];
-        if (img.src && !img.complete) {
-            promises.push(new Promise((resolve, reject) => {
-                const newImg = new Image();
-                newImg.crossOrigin = 'Anonymous';
-                newImg.onload = resolve;
-                newImg.onerror = reject;
-                newImg.src = img.src;
-            }));
+    // 2. Convert images to Base64
+    const images = Array.from(elementClone.getElementsByTagName('img'));
+    const conversionPromises = images.map(async (img) => {
+        if (img.src && img.src.startsWith('http')) {
+            try {
+                const dataUrl = await imageUrlToBase64(img.src);
+                img.src = dataUrl;
+            } catch (e) {
+                console.error('Não foi possível converter a imagem para Base64:', img.src, e);
+                img.style.display = 'none'; // Oculta a imagem se a conversão falhar
+            }
         }
-    }
-    await Promise.all(promises);
-    console.log("Images loaded for PDF export.");
+    });
+
+    await Promise.all(conversionPromises);
+    console.log("Images converted for PDF export.");
+
 
     // 3. Generate PDF
     const opt = {
