@@ -411,34 +411,40 @@ function gerarPreview() {
 }
 
 // Exportar PDF
-function exportarPDF() {
+async function exportarPDF() {
   const element = document.getElementById('preview');
-
-  // Clone the element to avoid side-effects
   const elementClone = element.cloneNode(true);
 
-  // We need to append it to the body temporarily for rendering, but make it invisible
+  // Prepare clone for rendering
   elementClone.style.position = 'absolute';
   elementClone.style.left = '-9999px';
-  elementClone.style.width = element.offsetWidth + 'px'; // Match the width
+  elementClone.style.width = element.offsetWidth + 'px';
   document.body.appendChild(elementClone);
 
-  const images = elementClone.getElementsByTagName('img');
-  const promises = [];
-  for (let i = 0; i < images.length; i++) {
-    const img = images[i];
-    // Create a new image to bypass cache and force load event
-    const newImg = new Image();
-    newImg.crossOrigin = 'Anonymous'; // Handle CORS
+  try {
+    // 1. Wait for all fonts to be loaded
+    await document.fonts.ready;
+    console.log("Fonts loaded for PDF export.");
 
-    promises.push(new Promise((resolve, reject) => {
-      newImg.onload = resolve;
-      newImg.onerror = reject;
-    }));
-    newImg.src = img.src;
-  }
+    // 2. Wait for all images to be loaded
+    const images = elementClone.getElementsByTagName('img');
+    const promises = [];
+    for (let i = 0; i < images.length; i++) {
+        const img = images[i];
+        if (img.src && !img.complete) {
+            promises.push(new Promise((resolve, reject) => {
+                const newImg = new Image();
+                newImg.crossOrigin = 'Anonymous';
+                newImg.onload = resolve;
+                newImg.onerror = reject;
+                newImg.src = img.src;
+            }));
+        }
+    }
+    await Promise.all(promises);
+    console.log("Images loaded for PDF export.");
 
-  Promise.all(promises).then(() => {
+    // 3. Generate PDF
     const opt = {
       margin:       0.5,
       filename:     'curriculo.pdf',
@@ -447,16 +453,15 @@ function exportarPDF() {
       jsPDF:        { unit: 'in', format: 'letter', orientation: 'portrait' }
     };
 
-    html2pdf().from(elementClone).set(opt).save().then(() => {
-        // Clean up the cloned element from the DOM
-        document.body.removeChild(elementClone);
-    });
+    await html2pdf().from(elementClone).set(opt).save();
 
-  }).catch(err => {
-    console.error("Erro ao carregar imagens para exportação PDF:", err);
-    alert("Não foi possível exportar para PDF. Uma imagem pode não ter sido carregada corretamente.");
-    document.body.removeChild(elementClone); // Cleanup on error too
-  });
+  } catch (err) {
+    console.error("Erro durante a exportação para PDF:", err);
+    alert("Ocorreu um erro ao gerar o PDF. Verifique o console para mais detalhes.");
+  } finally {
+    // 4. Cleanup the cloned element from the DOM
+    document.body.removeChild(elementClone);
+  }
 }
 
 // Helper para converter URL de imagem para Base64
@@ -483,6 +488,11 @@ async function exportarDOCX() {
     }
 
     try {
+        // 1. Wait for all fonts to be loaded
+        await document.fonts.ready;
+        console.log("Fonts loaded for DOCX export.");
+
+        // 2. Convert images to Base64
         const images = Array.from(elementClone.getElementsByTagName('img'));
         const conversionPromises = images.map(async (img) => {
             if (img.src && img.src.startsWith('http')) {
