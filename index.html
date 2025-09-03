@@ -5,447 +5,83 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Gerador de Currículos Profissional</title>
 
-<!-- LIBS -->
+<!-- Firebase compatível para HTML puro -->
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-storage-compat.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/docshift@latest/dist/docshift.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/Sortable/1.15.2/Sortable.min.js"></script>
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+
+<!-- html2pdf -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
 
 <style>
-/* --- Global & Fonts --- */
-@import url('https://fonts.googleapis.com/css2?family=Lato:wght@300;400;700&family=Merriweather:wght@400;700&family=Roboto:wght@400;700&display=swap');
+body { font-family: Arial, sans-serif; margin:0; padding:0; background:#f0f2f5; color:#333; }
+header { background:#4a90e2; color:white; padding:20px; text-align:center; }
+main { max-width:900px; margin:20px auto; padding:20px; background:white; border-radius:8px; box-shadow:0 2px 8px rgba(0,0,0,0.1);}
+h2 { color:#4a90e2; }
+label { display:block; margin-top:10px; font-weight:bold; }
+input, textarea, select { width:100%; padding:8px; margin-top:4px; border-radius:4px; border:1px solid #ccc; box-sizing:border-box; }
+button { margin-top:15px; padding:10px 20px; background:#4a90e2; color:white; border:none; border-radius:5px; cursor:pointer; font-size:16px; }
+button:hover { background:#357ab8; }
+#preview { margin-top:20px; padding:15px; border:1px solid #ccc; border-radius:5px; background:#fafafa; }
+#preview h3 { margin-top:0; }
+#loginStatus { text-align:right; margin-bottom:10px; }
 
-:root {
-    --accent-color-default: #4a90e2;
-    --background-color: #f7f8fa;
-    --panel-background: #ffffff;
-    --text-primary: #2c3e50;
-    --text-secondary: #5a6e82;
-    --border-color: #e4e7eb;
-    --danger-color: #e74c3c;
-    --premium-color: #f39c12;
+/* Modal Styles */
+.modal {
+  display: none;
+  position: fixed;
+  z-index: 1000;
+  left: 0;
+  top: 0;
+  width: 100%;
+  height: 100%;
+  overflow: auto;
+  background-color: rgba(0,0,0,0.6);
 }
-
-body {
-    font-family: 'Roboto', sans-serif;
-    margin: 0;
-    padding: 0;
-    background: var(--background-color);
-    color: var(--text-primary);
+.modal-content {
+  background-color: #fefefe;
+  margin: 15% auto;
+  padding: 20px;
+  border: 1px solid #888;
+  width: 80%;
+  max-width: 500px;
+  border-radius: 8px;
+  box-shadow: 0 4px 8px 0 rgba(0,0,0,0.2),0 6px 20px 0 rgba(0,0,0,0.19);
+  animation-name: animatetop;
+  animation-duration: 0.4s
 }
-
-/* --- Main Layout & Header --- */
-header {
-    background: var(--panel-background);
-    color: var(--text-primary);
-    padding: 10px 40px;
-    text-align: left;
-    box-shadow: 0 1px 3px rgba(0,0,0,0.05);
-    border-bottom: 1px solid var(--border-color);
+@keyframes animatetop {
+  from {top: -300px; opacity: 0}
+  to {top: 0; opacity: 1}
 }
-header h1 {
-    font-size: 1.5em;
-    margin: 0;
+.close-button {
+  color: #aaa;
+  float: right;
+  font-size: 28px;
+  font-weight: bold;
 }
-
-.main-container {
-    display: flex;
-    gap: 30px;
-    padding: 20px;
-    align-items: flex-start;
+.close-button:hover,
+.close-button:focus {
+  color: black;
+  text-decoration: none;
+  cursor: pointer;
 }
-
-#editor-panel {
-    flex: 1 1 60%;
-    background: var(--panel-background);
-    border-radius: 8px;
-    border: 1px solid var(--border-color);
-    box-shadow: 0 1px 3px rgba(0,0,0,0.02);
-}
-.editor-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 20px;
-    border-bottom: 1px solid var(--border-color);
-}
-.editor-header h2 {
-    margin: 0;
-    font-size: 1.2em;
-    color: var(--text-primary);
-}
-
-#preview-panel {
-    flex: 1 1 40%;
-    position: sticky;
-    top: 20px;
-    max-height: 95vh;
-    overflow-y: auto;
-}
-#preview {
-    background: var(--panel-background);
-    border-radius: 8px;
-    border: 1px solid var(--border-color);
-    padding: 30px;
-    box-shadow: 0 4px 12px rgba(0,0,0,0.08);
-}
-
-/* --- Form Elements & Sections --- */
-#cvForm {
-    padding: 20px;
-}
-.form-section {
-    margin-bottom: 25px;
-    padding-bottom: 25px;
-    border-bottom: 1px solid var(--border-color);
-}
-.form-section:last-child {
-    border-bottom: none;
-}
-.form-section h3, label {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 5px;
-}
-.form-section h3 {
+.modal-content h2 {
     margin-top: 0;
-    font-size: 1.1em;
-    color: var(--text-primary);
 }
-label {
-    font-weight: bold;
-    font-size: 0.9em;
-    color: var(--text-secondary);
-}
-.icon-select {
-    font-size: 0.8em;
-    padding: 2px;
-    border-radius: 4px;
-    border: 1px solid var(--border-color);
-    background-color: var(--background-color);
-}
-input[type="text"], input[type="email"], input[type="tel"], textarea, select {
-    width: 100%;
-    padding: 10px;
-    margin-top: 0;
-    border-radius: 6px;
-    border: 1px solid var(--border-color);
-    box-sizing: border-box;
-    font-size: 1em;
-    transition: border-color 0.2s, box-shadow 0.2s;
-}
-input[type="text"]:focus, input[type="email"]:focus, input[type="tel"]:focus, textarea:focus, select:focus {
-    outline: none;
-    border-color: var(--accent-color, var(--accent-color-default));
-    box-shadow: 0 0 0 3px rgba(74, 144, 226, 0.1);
-}
-input[type="file"] {
-    font-size: 0.9em;
-}
-textarea {
-    resize: vertical;
-    min-height: 80px;
-}
-
-/* --- Buttons & Controls --- */
-button, .button {
-    padding: 10px 15px;
-    border: none;
-    border-radius: 6px;
-    cursor: pointer;
-    font-size: 0.9em;
-    font-weight: bold;
-    transition: filter 0.2s;
-}
-button:hover, .button:hover {
-    filter: brightness(95%);
-}
-.button-add {
-    background: none;
-    border: 1px dashed var(--border-color);
-    color: var(--text-secondary);
-    width: 100%;
-    margin-top: 10px;
-}
-.button-add:hover {
-    background: #fcfcfc;
-    border-color: var(--accent-color, var(--accent-color-default));
-    color: var(--accent-color, var(--accent-color-default));
-}
-.button-premium {
-    background-color: var(--premium-color);
-    color: white;
-}
-.button-secondary {
-    background-color: #ecf0f1;
-    color: var(--text-secondary);
-}
-
-#savedCvArea {
-    padding: 20px;
-    background-color: #f7f8fa;
-    border-bottom: 1px solid var(--border-color);
-}
-.layout-controls {
-    display: flex;
-    gap: 20px;
-    align-items: flex-end;
-}
-.layout-controls > div {
-    display: flex;
-    flex-direction: column;
-}
-.layout-controls input[type="color"] {
-    width: 60px;
-    height: 35px;
-    padding: 2px;
-    border: 1px solid var(--border-color);
-    border-radius: 6px;
-}
-
-/* --- Dynamic Entry Fields --- */
-.experiencia-entry, .formacao-entry, .habilidade-entry, .projeto-entry, .link-entry {
-    display: flex;
-    align-items: center;
-    gap: 5px;
-    margin-bottom: 10px;
-    border: 1px solid var(--border-color);
-    padding: 8px;
-    border-radius: 6px;
-    background-color: var(--background-color);
-}
-.drag-handle {
-    cursor: move;
-    color: #b3b3b3;
-    padding: 0 8px;
-}
-.drag-handle:hover {
-    color: #333;
-}
-.entry-content {
-    flex-grow: 1;
-}
-.entry-content input, .entry-content textarea {
-    margin-bottom: 5px;
-}
-.entry-content > *:last-child {
-    margin-bottom: 0;
-}
-.habilidade-entry .entry-content, .link-entry .entry-content {
-    display: flex;
-    gap: 10px;
-}
-.remove-btn {
-    background-color: transparent;
-    color: var(--text-secondary);
-    padding: 5px;
-}
-.remove-btn:hover {
-    background-color: var(--danger-color);
-    color: white;
-}
-
-/* --- Preview Actions & Dropdown --- */
-.preview-actions {
-    display: flex;
-    gap: 10px;
-    padding: 10px;
-    background: #eef1f4;
-    border-radius: 8px;
-    margin-bottom: 15px;
-    align-items: center;
-}
-.dropdown {
-    position: relative;
-    display: inline-block;
-}
-.dropdown .dropbtn {
-    background-color: white;
-    color: var(--text-primary);
-}
-.dropdown-content {
-    display: none;
-    position: absolute;
-    background-color: #f9f9f9;
-    min-width: 160px;
-    box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
-    z-index: 1;
-    border-radius: 6px;
-}
-.dropdown-content a {
-    color: black;
-    padding: 12px 16px;
-    text-decoration: none;
-    display: block;
-}
-.dropdown-content a:hover {background-color: #f1f1f1}
-.dropdown:hover .dropdown-content {
-    display: block;
-}
-
-/* --- Misc & Helpers --- */
-.error-message {
-    color: var(--danger-color);
-    font-size: 0.85em;
-    margin-top: 4px;
-    display: block;
-    height: 1em;
-}
-input.error {
-    border-color: var(--danger-color) !important;
-    background-color: #fff6f4;
-}
-.sortable-ghost {
-    opacity: 0.4;
-    background-color: #cce5ff;
-}
-.font-lato { font-family: 'Lato', sans-serif; }
-.font-roboto { font-family: 'Roboto', sans-serif; }
-.font-merriweather { font-family: 'Merriweather', serif; }
-
-/* --- TEMPLATE-SPECIFIC STYLES --- */
-#preview h3 > i,
-#preview p > i {
-    margin-right: 8px;
-    width: 1.1em;
-    text-align: center;
-    color: var(--accent-color, var(--accent-color-default));
-}
-#preview.template-classico h2 {
-    color: var(--text-primary);
-    border-bottom: 2px solid var(--accent-color, var(--accent-color-default));
-    padding-bottom: 10px;
-    margin-bottom: 15px;
-    font-size: 1.8em;
-}
-#preview.template-classico h3 {
-    color: var(--accent-color, var(--accent-color-default));
-    margin-top: var(--section-spacing, 25px);
-    margin-bottom: 10px;
-    font-size: 1.2em;
-    text-transform: uppercase;
-    letter-spacing: 1px;
-}
-#preview.template-classico p, #preview.template-classico li {
-    line-height: 1.7;
-    color: var(--text-secondary);
-}
-#preview.template-classico ul {
-    list-style-type: none;
-    padding-left: 0;
-}
-#preview.template-classico li {
-    margin-bottom: 15px;
-    padding-left: 15px;
-    border-left: 3px solid #bdc3c7;
-}
-#preview.template-classico strong {
-    color: var(--text-primary);
-}
-#preview.template-classico hr {
-    border: 0;
-    height: 1px;
-    background-color: var(--border-color);
-    margin: 25px 0;
-}
-#preview.template-moderno {
-    display: flex;
-    background-color: var(--panel-background);
-    min-height: 800px;
-}
-.template-moderno .moderno-sidebar {
-    width: 35%;
-    background-color: var(--text-primary);
-    color: white;
-    padding: 30px;
-    box-sizing: border-box;
-}
-.template-moderno .moderno-sidebar h3 {
-    color: #ecf0f1;
-    font-size: 1.1em;
-    text-transform: uppercase;
-    letter-spacing: 1px;
-    border-bottom: 1px solid #7f8c8d;
-    padding-bottom: 5px;
-    margin-top: var(--section-spacing, 20px);
-}
-.template-moderno .moderno-sidebar p {
-    color: #bdc3c7;
-    line-height: 1.6;
-    font-size: 0.9em;
-    word-wrap: break-word;
-}
-.template-moderno .moderno-sidebar ul {
+.modal-content ul {
     list-style: none;
     padding: 0;
 }
-.template-moderno .moderno-sidebar li {
-    color: #bdc3c7;
-    margin-bottom: 5px;
-}
-.template-moderno .moderno-main {
-    width: 65%;
-    padding: 30px;
-    box-sizing: border-box;
-}
-.template-moderno .moderno-main h2 {
-    font-size: 2.5em;
-    color: var(--text-primary);
-    margin: 0 0 20px 0;
-    padding: 0;
-    border: none;
-}
-.template-moderno .moderno-main h3 {
-    color: var(--accent-color, #2980b9);
-    font-size: 1.3em;
-    border-bottom: 2px solid var(--border-color);
-    padding-bottom: 8px;
-    margin-top: var(--section-spacing, 20px);
-    margin-bottom: 15px;
-    text-transform: uppercase;
-}
-.template-moderno .job, .template-moderno .education {
-    margin-bottom: 20px;
-}
-.template-moderno .job h4, .template-moderno .education h4 {
-    margin: 0;
-    color: var(--text-primary);
-    font-weight: 700;
-    font-size: 1.1em;
-}
-.template-moderno .job h5, .template-moderno .education h5 {
-    margin: 2px 0 5px 0;
-    color: var(--text-secondary);
-    font-weight: 400;
-    font-style: italic;
-}
-.template-moderno .job p {
-    margin: 5px 0 0 0;
+.modal-content ul li {
+    margin-bottom: 10px;
     color: #555;
-    line-height: 1.5;
 }
-.profile-pic {
-    border-radius: 50%;
-    width: 120px;
-    height: 120px;
-    object-fit: cover;
-    margin-bottom: 15px;
-    border: 3px solid var(--border-color);
-}
-#preview.template-classico .profile-pic {
-    float: right;
-    margin-left: 20px;
-}
-#preview.template-moderno .profile-pic {
+.button-premium {
+    background: #f39c12;
     display: block;
-    margin-left: auto;
-    margin-right: auto;
-    border-color: #7f8c8d;
+    width: 100%;
+    text-align: center;
 }
 </style>
 </head>
@@ -455,701 +91,174 @@ input.error {
   <h1>Gerador de Currículos Profissional</h1>
 </header>
 
-<main class="main-container">
-    <div id="editor-panel">
-        <div class="editor-header">
-            <h2>Editor de Currículo</h2>
-            <div id="loginStatus">
-                <span id="userEmail"></span>
-                <button id="loginBtn" class="button-secondary" onclick="loginGoogle()">Login com Google</button>
-                <button id="logoutBtn" class="button-secondary" onclick="logout()" style="display:none;">Logout</button>
-            </div>
-        </div>
+<main>
+  <div id="loginStatus">
+    <span id="userEmail"></span>
+    <button id="loginBtn" onclick="loginGoogle()">Login com Google</button>
+    <button id="logoutBtn" onclick="logout()" style="display:none;">Logout</button>
+  </div>
 
-        <div id="savedCvArea" style="display:none;">
-            <h4>Meus Currículos</h4>
-            <select id="savedCvSelect"></select>
-            <button type="button" onclick="carregarCurriculo()">Carregar</button>
-            <button type="button" class="remove-btn" onclick="deletarCurriculo()">Deletar</button>
-        </div>
+  <h2>Preencha seus dados</h2>
+  <form id="cvForm">
+    <label>Nome</label>
+    <input type="text" id="nome" placeholder="Seu nome completo">
 
-        <form id="cvForm">
-            <div class="form-section">
-                <h3>Design e Layout</h3>
-                <div class="layout-controls">
-                    <div>
-                        <label for="template-select">Modelo</label>
-                        <select id="template-select" name="template-select">
-                            <option value="classico">Clássico</option>
-                            <option value="moderno">Moderno</option>
-                        </select>
-                    </div>
-                    <div>
-                        <label for="accent-color">Cor Destaque</label>
-                        <input type="color" id="accent-color" value="#4a90e2">
-                    </div>
-                    <div>
-                        <label for="font-select">Fonte</label>
-                        <select id="font-select">
-                            <option value="lato">Lato</option>
-                            <option value="roboto">Roboto</option>
-                            <option value="merriweather">Merriweather</option>
-                        </select>
-                    </div>
-                    <div>
-                        <label for="margin-slider">Margens Laterais</label>
-                        <input type="range" id="margin-slider" min="20" max="60" value="30">
-                        <span id="margin-value">30px</span>
-                    </div>
-                    <div>
-                        <label for="spacing-slider">Espaçamento de Seção</label>
-                        <input type="range" id="spacing-slider" min="15" max="40" value="25">
-                        <span id="spacing-value">25px</span>
-                    </div>
-                </div>
-            </div>
+    <label>Contato</label>
+    <input type="text" id="contato" placeholder="Email, telefone">
 
-            <div class="form-section">
-                <h3>Informações Pessoais</h3>
-                <label>Nome</label>
-                <input type="text" id="nome" placeholder="Seu nome completo">
+    <label>Resumo Profissional</label>
+    <textarea id="resumo" rows="3" placeholder="Breve descrição sobre você"></textarea>
 
-                <label for="profilePicInput">Foto de Perfil (Opcional)</label>
-                <input type="file" id="profilePicInput" accept="image/*" onchange="handleProfilePicUpload(this.files[0])">
-                <img id="profilePicPreview" src="" alt="Preview da Foto" style="max-width: 100px; border-radius: 50%; margin-top: 10px; display: none;">
-                <input type="hidden" id="profilePicUrl" value="">
+    <label>Experiências</label>
+    <textarea id="experiencias" rows="4" placeholder="Experiências profissionais separadas por vírgula"></textarea>
 
-                <label for="email">Email <select class="icon-select" id="email-icon"><option value="">Sem Ícone</option><option value="fas fa-envelope">Envelope</option><option value="fas fa-at">At</option></select></label>
-                <input type="email" id="email" placeholder="seu@email.com">
-                <span class="error-message" id="email-error"></span>
+    <label>Formação Acadêmica</label>
+    <textarea id="formacao" rows="3" placeholder="Cursos, instituições e datas"></textarea>
 
-                <label for="telefone">Telefone <select class="icon-select" id="telefone-icon"><option value="">Sem Ícone</option><option value="fas fa-phone">Telefone</option><option value="fab fa-whatsapp">WhatsApp</option></select></label>
-                <input type="tel" id="telefone" placeholder="(11) 99999-9999">
-                <span class="error-message" id="telefone-error"></span>
-            </div>
+    <label>Habilidades</label>
+    <input type="text" id="habilidades" placeholder="Ex.: Python, Excel, Comunicação">
 
-            <div class="form-section">
-                <h3>Resumo Profissional <select class="icon-select" id="resumo-icon"><option value="">Sem Ícone</option><option value="fas fa-user">Pessoa</option><option value="fas fa-id-card">Crachá</option></select></h3>
-                <textarea id="resumo" rows="4" placeholder="Breve descrição sobre você"></textarea>
-            </div>
+    <label>Idiomas</label>
+    <input type="text" id="idiomas" placeholder="Ex.: Inglês - Avançado, Espanhol - Intermediário">
 
-            <div class="form-section">
-                <h3>Experiências <select class="icon-select" id="experiencias-icon"><option value="">Sem Ícone</option><option value="fas fa-briefcase">Mala</option><option value="fas fa-building">Prédio</option></select></h3>
-                <div id="experiencias-container"></div>
-                <button type="button" class="button-add" onclick="adicionarExperiencia()">+ Adicionar Experiência</button>
-            </div>
+    <button type="button" onclick="gerarPreview()">Gerar Preview</button>
+    <button type="button" onclick="exportarPDF()">Exportar PDF</button>
+    <button type="button" onclick="comprarPremium()">Comprar Premium</button>
+  </form>
 
-            <div class="form-section">
-                <h3>Formação Acadêmica <select class="icon-select" id="formacao-icon"><option value="">Sem Ícone</option><option value="fas fa-graduation-cap">Chapéu</option><option value="fas fa-university">Universidade</option></select></h3>
-                <div id="formacao-container"></div>
-                <button type="button" class="button-add" onclick="adicionarFormacao()">+ Adicionar Formação</button>
-            </div>
-
-            <div class="form-section">
-                <h3>Habilidades <select class="icon-select" id="habilidades-icon"><option value="">Sem Ícone</option><option value="fas fa-star">Estrela</option><option value="fas fa-check">Check</option></select></h3>
-                <div id="habilidades-container"></div>
-                <button type="button" class="button-add" onclick="adicionarHabilidade()">+ Adicionar Habilidade</button>
-            </div>
-
-            <div class="form-section">
-                <h3>Idiomas <select class="icon-select" id="idiomas-icon"><option value="">Sem Ícone</option><option value="fas fa-language">Linguagem</option><option value="fas fa-globe">Globo</option></select></h3>
-                <input type="text" id="idiomas" placeholder="Ex.: Inglês - Avançado, Espanhol - Intermediário">
-            </div>
-
-            <div class="form-section">
-                <h3>Projetos <select class="icon-select" id="projetos-icon"><option value="">Sem Ícone</option><option value="fas fa-project-diagram">Diagrama</option><option value="fas fa-tools">Ferramentas</option></select></h3>
-                <div id="projetos-container"></div>
-                <button type="button" class="button-add" onclick="adicionarProjeto()">+ Adicionar Projeto</button>
-            </div>
-
-            <div class="form-section">
-                <h3>Links Profissionais <select class="icon-select" id="links-icon"><option value="">Sem Ícone</option><option value="fas fa-link">Link</option><option value="fas fa-share-alt">Compartilhar</option></select></h3>
-                <div id="links-container"></div>
-                <button type="button" class="button-add" onclick="adicionarLink()">+ Adicionar Link</button>
-            </div>
-        </form>
-    </div>
-
-    <div id="preview-panel">
-        <div class="preview-actions">
-            <button type="button" onclick="novoCurriculo()">Novo</button>
-            <button type="button" onclick="salvarCurriculo()">Salvar</button>
-            <button type="button" onclick="salvarComoNovo()">Salvar como...</button>
-            <div class="dropdown">
-                <button class="dropbtn">Exportar</button>
-                <div class="dropdown-content">
-                    <a href="#" onclick="exportarPDF(); return false;">Exportar PDF</a>
-                    <a href="#" onclick="exportarDOCX(); return false;">Exportar DOCX</a>
-                </div>
-            </div>
-            <button type="button" class="button-premium" onclick="comprarPremium()">Seja Premium</button>
-        </div>
-        <div id="preview">
-            <!-- O preview do currículo será renderizado aqui -->
-        </div>
-    </div>
+  <div id="preview">
+    <h3>Preview do Currículo</h3>
+    <p>Preencha os campos e clique em "Gerar Preview" para ver seu currículo aqui.</p>
+  </div>
 </main>
+
 <script>
-// Firebase Config
+// Firebase Config com suas chaves
 const firebaseConfig = {
   apiKey: "AIzaSyBxkmzxao2HOnGsb2Y2R7W0q9FnYdt8dJE",
   authDomain: "gerador-de-curriculos-online.firebaseapp.com",
   projectId: "gerador-de-curriculos-online",
-  storageBucket: "gerador-de-curriculos-online.appspot.com",
+  storageBucket: "gerador-de-curriculos-online.firebasestorage.app",
   messagingSenderId: "114021870709",
   appId: "1:114021870709:web:f73b2d837bb4b5dd7adc3c",
   measurementId: "G-HLWH9KSK0B"
 };
 
-// --- GLOBAL LIBS & VARS ---
+// Inicializar Firebase
 firebase.initializeApp(firebaseConfig);
 const auth = firebase.auth();
 const db = firebase.firestore();
-const storage = firebase.storage();
-const { jsPDF } = window.jspdf;
-const { createDoc, P, Packer } = window.docshift;
 
-// --- DYNAMIC FIELD FUNCTIONS ---
-function createDynamicEntry(type, placeholders, contentHtml) {
-    const container = document.getElementById(`${type}-container`);
-    const newEntry = document.createElement('div');
-    newEntry.className = `${type.slice(0, -1)}-entry`;
-    newEntry.innerHTML = `
-        <span class="drag-handle"><i class="fas fa-grip-vertical"></i></span>
-        <div class="entry-content">${contentHtml}</div>
-        <button type="button" class="remove-btn" onclick="this.parentElement.remove(); gerarPreview();"><i class="fas fa-trash"></i></button>
-    `;
-    container.appendChild(newEntry);
-    newEntry.querySelectorAll('input, textarea').forEach(el => el.addEventListener('input', gerarPreview));
-}
-
-function adicionarExperiencia() {
-    createDynamicEntry('experiencias', [], `
-        <input type="text" placeholder="Cargo">
-        <input type="text" placeholder="Empresa">
-        <textarea rows="2" placeholder="Descrição das atividades..."></textarea>
-    `);
-}
-
-function adicionarFormacao() {
-    createDynamicEntry('formacao', [], `
-        <input type="text" placeholder="Curso ou Formação">
-        <input type="text" placeholder="Instituição de Ensino">
-        <input type="text" placeholder="Ano de Conclusão">
-    `);
-}
-
-function adicionarHabilidade() {
-    createDynamicEntry('habilidades', [], `<input type="text" placeholder="Habilidade (ex: Comunicação, Pacote Office)">`);
-}
-
-function adicionarProjeto() {
-    createDynamicEntry('projetos', [], `
-        <input type="text" placeholder="Nome do Projeto">
-        <input type="text" placeholder="Link do Projeto (opcional)">
-        <textarea rows="2" placeholder="Descrição do projeto..."></textarea>
-    `);
-}
-
-function adicionarLink() {
-    createDynamicEntry('links', [], `
-        <input type="text" placeholder="Nome do Link (ex: LinkedIn)">
-        <input type="text" placeholder="URL do Link">
-    `);
-}
-
-// --- PREVIEW GENERATION ---
-function getFormData() {
-    const getEntries = (containerId, fields) => {
-        return Array.from(document.querySelectorAll(`#${containerId} > div`)).map(entry => {
-            const data = {};
-            const tagCounts = {};
-            fields.forEach(field => {
-                const tag = field.tag;
-                tagCounts[tag] = (tagCounts[tag] || 0) + 1;
-                const input = entry.querySelector(`.entry-content ${tag}:nth-of-type(${tagCounts[tag]})`);
-                if (input) {
-                    data[field.name] = input.value;
-                }
-            });
-            return data;
-        });
-    };
-
-    return {
-        template: document.getElementById('template-select').value,
-        accentColor: document.getElementById('accent-color').value,
-        fontFamily: document.getElementById('font-select').value,
-        marginValue: document.getElementById('margin-slider').value,
-        spacingValue: document.getElementById('spacing-slider').value,
-        nome: document.getElementById('nome').value,
-        email: document.getElementById('email').value,
-        telefone: document.getElementById('telefone').value,
-        resumo: document.getElementById('resumo').value,
-        idiomas: document.getElementById('idiomas').value,
-        profilePicUrl: document.getElementById('profilePicUrl').value,
-        icons: {
-            email: document.getElementById('email-icon').value,
-            telefone: document.getElementById('telefone-icon').value,
-            resumo: document.getElementById('resumo-icon').value,
-            experiencias: document.getElementById('experiencias-icon').value,
-            formacao: document.getElementById('formacao-icon').value,
-            habilidades: document.getElementById('habilidades-icon').value,
-            idiomas: document.getElementById('idiomas-icon').value,
-            projetos: document.getElementById('projetos-icon').value,
-            links: document.getElementById('links-icon').value
-        },
-        experiencias: getEntries('experiencias-container', [{tag: 'input', name: 'cargo'}, {tag: 'input', name: 'empresa'}, {tag: 'textarea', name: 'descricao'}]),
-        formacao: getEntries('formacao-container', [{tag: 'input', name: 'curso'}, {tag: 'input', name: 'instituicao'}, {tag: 'input', name: 'ano'}]),
-        habilidades: getEntries('habilidades-container', [{tag: 'input', name: 'habilidade'}]),
-        projetos: getEntries('projetos-container', [{tag: 'input', name: 'nome'}, {tag: 'input', name: 'link'}, {tag: 'textarea', name: 'descricao'}]),
-        links: getEntries('links-container', [{tag: 'input', name: 'nome'}, {tag: 'input', name: 'url'}])
-    };
-}
-
-function gerarPreview() {
-    const data = getFormData();
-    const preview = document.getElementById('preview');
-
-    // Apply styles
-    preview.style.setProperty('--accent-color', data.accentColor);
-    preview.style.padding = `30px ${data.marginValue}px`;
-    preview.style.setProperty('--section-spacing', `${data.spacingValue}px`);
-    preview.className = `font-${data.fontFamily} template-${data.template}`;
-
-    const iconHtml = (key) => data.icons[key] ? `<i class="${data.icons[key]}"></i>` : '';
-    const profilePicHtml = data.profilePicUrl ? `<img src="${data.profilePicUrl}" alt="Foto de Perfil" class="profile-pic">` : '';
-
-    let html = '';
-
-    if (data.template === 'classico') {
-        html += `${profilePicHtml}<h2>${data.nome}</h2>`;
-        if(data.email || data.telefone) html += `<p>${iconHtml('email')} ${data.email} | ${iconHtml('telefone')} ${data.telefone}</p>`;
-        if(data.resumo) html += `<p>${iconHtml('resumo')} ${data.resumo}</p><hr>`;
-
-        const renderSection = (key, title, itemRenderer) => {
-            if (data[key].length > 0 && data[key].some(item => Object.values(item).some(v => v))) {
-                html += `<h3>${iconHtml(key)} ${title}</h3><ul>`;
-                data[key].forEach(item => { if(Object.values(item).some(v => v)) html += itemRenderer(item); });
-                html += `</ul><hr>`;
-            }
-        };
-
-        renderSection('experiencias', 'Experiências', item => `<li><strong>${item.cargo || ''}</strong> em ${item.empresa || ''}<br>${item.descricao || ''}</li>`);
-        renderSection('formacao', 'Formação', item => `<li><strong>${item.curso || ''}</strong> - ${item.instituicao || ''} (${item.ano || ''})</li>`);
-        renderSection('projetos', 'Projetos', item => `<li><strong>${item.nome || ''}</strong> ${item.link ? `(<a href="${item.link}">${item.link}</a>)` : ''}<br>${item.descricao || ''}</li>`);
-        if (data.habilidades.length > 0) html += `<h3>${iconHtml('habilidades')} Habilidades</h3><p>${data.habilidades.map(h => h.habilidade).join(', ')}</p><hr>`;
-        if (data.idiomas) html += `<h3>${iconHtml('idiomas')} Idiomas</h3><p>${data.idiomas}</p><hr>`;
-        renderSection('links', 'Links', item => `<li><a href="${item.url}">${item.nome}</a></li>`);
-
-    } else { // Moderno Template
-        html = `<div class="moderno-sidebar">
-                    ${profilePicHtml}
-                    <h3>${iconHtml('resumo')} Contato</h3>
-                    <p>${iconHtml('email')} ${data.email}</p>
-                    <p>${iconHtml('telefone')} ${data.telefone}</p>`;
-        if (data.links.length > 0) {
-            html += `<h3>${iconHtml('links')} Links</h3><ul>`;
-            data.links.forEach(l => { if(l.nome) html += `<li><a href="${l.url}">${l.nome}</a></li>`; });
-            html += `</ul>`;
-        }
-        if (data.habilidades.length > 0) {
-            html += `<h3>${iconHtml('habilidades')} Habilidades</h3><ul>`;
-            data.habilidades.forEach(h => { if(h.habilidade) html += `<li>${h.habilidade}</li>`; });
-            html += `</ul>`;
-        }
-        if (data.idiomas) html += `<h3>${iconHtml('idiomas')} Idiomas</h3><p>${data.idiomas}</p>`;
-        html += `</div>
-                 <div class="moderno-main">
-                    <h2>${data.nome}</h2>`;
-        if (data.resumo) html += `<p>${data.resumo}</p>`;
-
-        if (data.experiencias.length > 0 && data.experiencias.some(item => Object.values(item).some(v => v))) {
-            html += `<h3>${iconHtml('experiencias')} Experiências</h3>`;
-            data.experiencias.forEach(item => {
-                if(Object.values(item).some(v => v)) {
-                    html += `<div class="job"><h4>${item.cargo}</h4><h5>${item.empresa}</h5><p>${item.descricao}</p></div>`;
-                }
-            });
-        }
-        if (data.formacao.length > 0 && data.formacao.some(item => Object.values(item).some(v => v))) {
-            html += `<h3>${iconHtml('formacao')} Formação</h3>`;
-            data.formacao.forEach(item => {
-                if(Object.values(item).some(v => v)) {
-                    html += `<div class="education"><h4>${item.curso}</h4><h5>${item.instituicao} (${item.ano})</h5></div>`;
-                }
-            });
-        }
-        if (data.projetos.length > 0 && data.projetos.some(item => Object.values(item).some(v => v))) {
-            html += `<h3>${iconHtml('projetos')} Projetos</h3>`;
-            data.projetos.forEach(item => {
-                if(Object.values(item).some(v => v)) {
-                    html += `<div class="job"><h4>${item.nome} ${item.link ? `(<a href="${item.link}">${item.link}</a>)`: ''}</h4><p>${item.descricao}</p></div>`;
-                }
-            });
-        }
-        html += `</div>`;
-    }
-    preview.innerHTML = html;
-}
-
-// --- EXPORT FUNCTIONS ---
-async function exportarPDF() {
-    alert("Iniciando a exportação para PDF. Isso pode levar alguns segundos...");
-    const data = getFormData();
-    const doc = new jsPDF('p', 'mm', 'a4');
-    let y = 15;
-    const margin = 15;
-    const maxWidth = 210 - margin * 2;
-
-    doc.setFont(data.fontFamily.split('-')[0], 'normal');
-
-    if (data.profilePicUrl) {
-        try {
-            const response = await fetch(data.profilePicUrl);
-            const blob = await response.blob();
-            const base64 = await new Promise(resolve => {
-                const reader = new FileReader();
-                reader.onloadend = () => resolve(reader.result);
-                reader.readAsDataURL(blob);
-            });
-            doc.addImage(base64, 'JPEG', margin, y, 30, 30);
-            y += 40;
-        } catch (e) {
-            console.error("Erro ao carregar imagem de perfil:", e);
-        }
-    }
-
-    doc.setFontSize(22);
-    doc.setTextColor(data.accentColor);
-    doc.text(data.nome, margin, y);
-    y += 10;
-
-    doc.setFontSize(11);
-    doc.setTextColor(50, 50, 50);
-    doc.text(`${data.email} | ${data.telefone}`, margin, y);
-    y += 10;
-
-    if(data.resumo) {
-        doc.text(doc.splitTextToSize(data.resumo, maxWidth), margin, y);
-        y += (doc.getTextDimensions(doc.splitTextToSize(data.resumo, maxWidth)).h) + 10;
-    }
-
-    const addSection = (title, items, renderer) => {
-        if(items.length > 0 && items.some(i => Object.values(i).some(v => v))) {
-            doc.setFontSize(14);
-            doc.setTextColor(data.accentColor);
-            doc.text(title, margin, y);
-            y += 8;
-            doc.setFontSize(11);
-            doc.setTextColor(50, 50, 50);
-            items.forEach(item => {
-                if(Object.values(item).some(v => v)) {
-                    const text = renderer(item);
-                    doc.text(doc.splitTextToSize(text, maxWidth), margin, y);
-                    y += (doc.getTextDimensions(doc.splitTextToSize(text, maxWidth)).h) + 5;
-                    if (y > 280) { doc.addPage(); y = 15; }
-                }
-            });
-        }
-    };
-
-    addSection('Experiências', data.experiencias, item => `${item.cargo} em ${item.empresa}\n${item.descricao}`);
-    addSection('Formação', data.formacao, item => `${item.curso} - ${item.instituicao} (${item.ano})`);
-    addSection('Projetos', data.projetos, item => `${item.nome} (${item.link})\n${item.descricao}`);
-
-    doc.save(`${data.nome.replace(/\s/g, '_')}_curriculo.pdf`);
-}
-
-
-async function exportarDOCX() {
-    alert("Iniciando a exportação para DOCX...");
-    const data = getFormData();
-    const children = [
-        new P({ text: data.nome, style: 'h1' }),
-        new P({ text: `${data.email} | ${data.telefone}` }),
-        new P({ text: data.resumo }),
-    ];
-
-    const addSection = (title, items, renderer) => {
-        if(items.length > 0 && items.some(i => Object.values(i).some(v => v))) {
-            children.push(new P({ text: title, style: 'h2' }));
-            items.forEach(item => {
-                if(Object.values(item).some(v => v)) children.push(new P({ text: renderer(item) }));
-            });
-        }
-    };
-
-    addSection('Experiências', data.experiencias, item => `${item.cargo} em ${item.empresa}: ${item.descricao}`);
-    addSection('Formação', data.formacao, item => `${item.curso} - ${item.instituicao} (${item.ano})`);
-
-    const doc = createDoc({
-        children,
-        styles: {
-            paragraph: { run: { font: data.fontFamily, color: "333333" } },
-            h1: { run: { size: 44, bold: true, color: data.accentColor.substring(1) } },
-            h2: { run: { size: 32, bold: true, color: data.accentColor.substring(1) } },
-        }
-    });
-
-    const blob = await Packer.toBlob(doc);
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement("a");
-    a.href = url;
-    a.download = `${data.nome.replace(/\s/g, '_')}_curriculo.docx`;
-    a.click();
-    URL.revokeObjectURL(url);
-}
-
-// --- FIREBASE & DATA ---
-function comprarPremium() {
-    alert("Função Premium ainda não implementada. Agradecemos seu interesse!");
-}
-
-function novoCurriculo() {
-    if (confirm("Tem certeza que deseja limpar todos os campos?")) {
-        document.getElementById('cvForm').reset();
-        ['experiencias', 'formacao', 'habilidades', 'projetos', 'links'].forEach(type => {
-            document.getElementById(`${type}-container`).innerHTML = '';
-        });
-        document.getElementById('profilePicUrl').value = '';
-        document.getElementById('profilePicPreview').style.display = 'none';
-        adicionarExperiencia();
-        adicionarFormacao();
-        adicionarHabilidade();
-        adicionarProjeto();
-        adicionarLink();
-        gerarPreview();
-    }
-}
-
-// --- FIREBASE & DATA CONTINUED ---
-let currentUser = null;
-
+// Login Google
 function loginGoogle() {
-    const provider = new firebase.auth.GoogleAuthProvider();
-    auth.signInWithPopup(provider).catch(error => {
-        console.error("Erro no login:", error);
-        alert(`Erro ao fazer login: ${error.message}`);
-    });
+  const provider = new firebase.auth.GoogleAuthProvider();
+  auth.signInWithPopup(provider)
+    .then(result => {
+      document.getElementById('userEmail').innerText = result.user.email;
+      document.getElementById('loginBtn').style.display = 'none';
+      document.getElementById('logoutBtn').style.display = 'inline';
+    })
+    .catch(error => alert(error.message));
 }
 
 function logout() {
-    auth.signOut();
+  auth.signOut().then(() => {
+    document.getElementById('userEmail').innerText = '';
+    document.getElementById('loginBtn').style.display = 'inline';
+    document.getElementById('logoutBtn').style.display = 'none';
+  });
 }
 
+// Monitor login status
 auth.onAuthStateChanged(user => {
-    const loginStatusDiv = document.getElementById('loginStatus');
-    const savedCvArea = document.getElementById('savedCvArea');
-    const userEmailSpan = document.getElementById('userEmail');
-    const loginBtn = document.getElementById('loginBtn');
-    const logoutBtn = document.getElementById('logoutBtn');
-
-    if (user) {
-        currentUser = user;
-        userEmailSpan.textContent = user.email;
-        loginBtn.style.display = 'none';
-        logoutBtn.style.display = 'inline-block';
-        savedCvArea.style.display = 'block';
-        loadUserCvs();
-    } else {
-        currentUser = null;
-        userEmailSpan.textContent = '';
-        loginBtn.style.display = 'inline-block';
-        logoutBtn.style.display = 'none';
-        savedCvArea.style.display = 'none';
-    }
+  if(user){
+    document.getElementById('userEmail').innerText = user.email;
+    document.getElementById('loginBtn').style.display = 'none';
+    document.getElementById('logoutBtn').style.display = 'inline';
+  } else {
+    document.getElementById('userEmail').innerText = '';
+    document.getElementById('loginBtn').style.display = 'inline';
+    document.getElementById('logoutBtn').style.display = 'none';
+  }
 });
 
-function getCvDataAsObject() {
-    const data = getFormData();
-    // We can't store functions, so remove the icons part for saving.
-    delete data.icons;
-    return data;
+// Gerar Preview
+function gerarPreview() {
+  const nome = document.getElementById('nome').value;
+  const contato = document.getElementById('contato').value;
+  const resumo = document.getElementById('resumo').value;
+  const experiencias = document.getElementById('experiencias').value.split(',');
+  const formacao = document.getElementById('formacao').value.split(',');
+  const habilidades = document.getElementById('habilidades').value.split(',');
+  const idiomas = document.getElementById('idiomas').value.split(',');
+
+  let html = `<h2>${nome}</h2>`;
+  html += `<p><strong>Contato:</strong> ${contato}</p>`;
+  html += `<p><strong>Resumo:</strong> ${resumo}</p>`;
+
+  html += `<h3>Experiências</h3><ul>`;
+  experiencias.forEach(exp => { if(exp.trim()) html += `<li>${exp.trim()}</li>`; });
+  html += `</ul>`;
+
+  html += `<h3>Formação Acadêmica</h3><ul>`;
+  formacao.forEach(f => { if(f.trim()) html += `<li>${f.trim()}</li>`; });
+  html += `</ul>`;
+
+  html += `<h3>Habilidades</h3><ul>`;
+  habilidades.forEach(h => { if(h.trim()) html += `<li>${h.trim()}</li>`; });
+  html += `</ul>`;
+
+  html += `<h3>Idiomas</h3><ul>`;
+  idiomas.forEach(i => { if(i.trim()) html += `<li>${i.trim()}</li>`; });
+  html += `</ul>`;
+
+  document.getElementById('preview').innerHTML = html;
 }
 
-function loadCvDataFromObject(data) {
-    // Set simple values
-    Object.keys(data).forEach(key => {
-        const el = document.getElementById(key);
-        if (el && typeof data[key] === 'string') {
-            if (el.type === 'file') return;
-            if (el.type === 'checkbox' || el.type === 'radio') {
-                el.checked = data[key];
-            } else {
-                el.value = data[key];
-            }
+// Exportar PDF
+function exportarPDF() {
+  const element = document.getElementById('preview');
+  html2pdf().set({margin:0.5, filename:'curriculo.pdf', html2canvas:{scale:2}}).from(element).save();
+}
+
+// Comprar Premium
+function comprarPremium() {
+  document.getElementById('premiumModal').style.display = 'block';
+}
+
+function closePremiumModal() {
+  document.getElementById('premiumModal').style.display = 'none';
+}
+
+// Check Premium
+auth.onAuthStateChanged(user => {
+  if(user){
+    db.collection('usuarios').doc(user.uid).get()
+      .then(doc => {
+        if(doc.exists && doc.data().premium){
+          alert("Você já é usuário Premium! Modelos extras liberados.");
+          // Aqui você poderia desbloquear recursos extras no site
         }
-    });
-
-    // Clear existing dynamic fields
-    ['experiencias', 'formacao', 'habilidades', 'projetos', 'links'].forEach(type => {
-        document.getElementById(`${type}-container`).innerHTML = '';
-    });
-
-    // Re-create dynamic fields
-    data.experiencias.forEach(item => {
-        adicionarExperiencia();
-        const entry = document.querySelector('#experiencias-container .experiencia-entry:last-child');
-        if (entry) {
-            entry.querySelector('input:nth-child(1)').value = item.cargo || '';
-            entry.querySelector('input:nth-child(2)').value = item.empresa || '';
-            entry.querySelector('textarea').value = item.descricao || '';
-        }
-    });
-     data.formacao.forEach(item => {
-        adicionarFormacao();
-        const entry = document.querySelector('#formacao-container .formacao-entry:last-child');
-        if (entry) {
-            entry.querySelector('input:nth-child(1)').value = item.curso || '';
-            entry.querySelector('input:nth-child(2)').value = item.instituicao || '';
-            entry.querySelector('input:nth-child(3)').value = item.ano || '';
-        }
-    });
-    data.habilidades.forEach(item => {
-        adicionarHabilidade();
-        const entry = document.querySelector('#habilidades-container .habilidade-entry:last-child');
-        if(entry) entry.querySelector('input').value = item.habilidade || '';
-    });
-    data.projetos.forEach(item => {
-        adicionarProjeto();
-        const entry = document.querySelector('#projetos-container .projeto-entry:last-child');
-        if (entry) {
-            entry.querySelector('input:nth-child(1)').value = item.nome || '';
-            entry.querySelector('input:nth-child(2)').value = item.link || '';
-            entry.querySelector('textarea').value = item.descricao || '';
-        }
-    });
-    data.links.forEach(item => {
-        adicionarLink();
-        const entry = document.querySelector('#links-container .link-entry:last-child');
-        if(entry) {
-            entry.querySelector('input:nth-child(1)').value = item.nome || '';
-            entry.querySelector('input:nth-child(2)').value = item.url || '';
-        }
-    });
-
-    // Update profile picture preview if URL exists
-    const profilePicPreview = document.getElementById('profilePicPreview');
-    if (data.profilePicUrl) {
-        profilePicPreview.src = data.profilePicUrl;
-        profilePicPreview.style.display = 'block';
-    } else {
-        profilePicPreview.style.display = 'none';
-    }
-
-    gerarPreview();
-}
-
-function salvarCurriculo() {
-    if (!currentUser) return alert("Você precisa estar logado para salvar.");
-
-    const cvId = document.getElementById('savedCvSelect').value;
-    if (!cvId || cvId === 'new') {
-        salvarComoNovo();
-        return;
-    }
-
-    const cvData = getCvDataAsObject();
-    db.collection('users').doc(currentUser.uid).collection('cvs').doc(cvId).set(cvData)
-        .then(() => alert("Currículo atualizado com sucesso!"))
-        .catch(error => alert("Erro ao atualizar: " + error.message));
-}
-
-function salvarComoNovo() {
-    if (!currentUser) return alert("Você precisa estar logado para salvar.");
-
-    const cvName = prompt("Digite um nome para este currículo:", "Meu Currículo");
-    if (!cvName) return;
-
-    const cvData = getCvDataAsObject();
-    db.collection('users').doc(currentUser.uid).collection('cvs').add({ ...cvData, name: cvName })
-        .then(() => {
-            alert("Currículo salvo com sucesso!");
-            loadUserCvs();
-        })
-        .catch(error => alert("Erro ao salvar: " + error.message));
-}
-
-function loadUserCvs() {
-    if (!currentUser) return;
-    const select = document.getElementById('savedCvSelect');
-    select.innerHTML = '<option value="new">-- Novo Currículo --</option>';
-
-    db.collection('users').doc(currentUser.uid).collection('cvs').get().then(querySnapshot => {
-        querySnapshot.forEach(doc => {
-            const option = document.createElement('option');
-            option.value = doc.id;
-            option.textContent = doc.data().name || doc.id;
-            select.appendChild(option);
-        });
-    });
-}
-
-function carregarCurriculo() {
-    if (!currentUser) return alert("Você precisa estar logado para carregar.");
-    const cvId = document.getElementById('savedCvSelect').value;
-    if (!cvId || cvId === 'new') {
-        novoCurriculo();
-        return;
-    }
-    db.collection('users').doc(currentUser.uid).collection('cvs').doc(cvId).get().then(doc => {
-        if (doc.exists) {
-            loadCvDataFromObject(doc.data());
-            alert("Currículo carregado!");
-        } else {
-            alert("Erro: Currículo não encontrado.");
-        }
-    }).catch(error => alert("Erro ao carregar: " + error.message));
-}
-
-function deletarCurriculo() {
-    if (!currentUser) return alert("Você precisa estar logado para deletar.");
-    const select = document.getElementById('savedCvSelect');
-    const cvId = select.value;
-    if (!cvId || cvId === 'new') return alert("Selecione um currículo para deletar.");
-
-    if (confirm(`Tem certeza que deseja deletar o currículo "${select.options[select.selectedIndex].text}"?`)) {
-        db.collection('users').doc(currentUser.uid).collection('cvs').doc(cvId).delete()
-            .then(() => {
-                alert("Currículo deletado com sucesso.");
-                loadUserCvs();
-                novoCurriculo();
-            })
-            .catch(error => alert("Erro ao deletar: " + error.message));
-    }
-}
-
-// --- EVENT LISTENERS & INIT ---
-function inicializarArrastarESoltar() {
-    const containers = ['experiencias-container', 'formacao-container', 'habilidades-container', 'projetos-container', 'links-container'];
-    containers.forEach(id => {
-        const el = document.getElementById(id);
-        if (el) {
-            new Sortable(el, {
-                animation: 150,
-                handle: '.drag-handle',
-                ghostClass: 'sortable-ghost',
-                onEnd: gerarPreview
-            });
-        }
-    });
-}
-
-window.addEventListener('DOMContentLoaded', () => {
-    document.getElementById('cvForm').addEventListener('input', gerarPreview);
-
-    // Add initial empty fields
-    adicionarExperiencia();
-    adicionarFormacao();
-    adicionarHabilidade();
-    adicionarProjeto();
-    adicionarLink();
-
-    gerarPreview();
-    inicializarArrastarESoltar();
+      });
+  }
 });
-
 </script>
+
+<!-- Premium Modal -->
+<div id="premiumModal" class="modal">
+  <div class="modal-content">
+    <span class="close-button" onclick="closePremiumModal()">&times;</span>
+    <h2>Torne-se Premium!</h2>
+    <p>Desbloqueie recursos exclusivos para criar um currículo ainda mais impressionante:</p>
+    <ul>
+      <li>&#10004; Acesso a todos os templates, incluindo o 'Moderno' e outros designs premium.</li>
+      <li>&#10004; Opções avançadas de customização de cores e fontes.</li>
+      <li>&#10004; Exportação em alta resolução e sem marca d'água.</li>
+      <li>&#10004; Suporte prioritário.</li>
+    </ul>
+    <button class="button-premium" onclick="alert('Processo de compra não implementado.')">Quero ser Premium</button>
+  </div>
+</div>
+
 </body>
 </html>
