@@ -83,9 +83,52 @@ button:hover { background:#357ab8; }
     width: 100%;
     text-align: center;
 }
+
+/* Toast Notification Styles */
+#toast-container {
+  position: fixed;
+  top: 20px;
+  right: 20px;
+  z-index: 2000;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+.toast {
+  padding: 15px 20px;
+  border-radius: 5px;
+  color: white;
+  font-size: 16px;
+  box-shadow: 0 2px 10px rgba(0,0,0,0.2);
+  opacity: 0;
+  transform: translateX(100%);
+  animation: slideIn 0.5s forwards, fadeOut 0.5s 4.5s forwards;
+}
+@keyframes slideIn {
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+@keyframes fadeOut {
+  to {
+    opacity: 0;
+    transform: translateX(100%);
+  }
+}
+.toast-success {
+  background-color: #2ecc71;
+}
+.toast-error {
+  background-color: #e74c3c;
+}
+.toast-info {
+  background-color: #3498db;
+}
 </style>
 </head>
 <body>
+<div id="toast-container"></div>
 
 <header>
   <h1>Gerador de Currículos Profissional</h1>
@@ -133,6 +176,22 @@ button:hover { background:#357ab8; }
 </main>
 
 <script>
+// --- Toast Notification Function ---
+function showToast(message, type = 'info') {
+  const container = document.getElementById('toast-container');
+
+  const toast = document.createElement('div');
+  toast.className = `toast toast-${type}`;
+  toast.textContent = message;
+
+  container.appendChild(toast);
+
+  // Remove the toast after 5 seconds
+  setTimeout(() => {
+    toast.remove();
+  }, 5000);
+}
+
 // Firebase Config com suas chaves
 const firebaseConfig = {
   apiKey: "AIzaSyBxkmzxao2HOnGsb2Y2R7W0q9FnYdt8dJE",
@@ -157,8 +216,9 @@ function loginGoogle() {
       document.getElementById('userEmail').innerText = result.user.email;
       document.getElementById('loginBtn').style.display = 'none';
       document.getElementById('logoutBtn').style.display = 'inline';
+      showToast(`Bem-vindo, ${result.user.email}!`, 'success');
     })
-    .catch(error => alert(error.message));
+    .catch(error => showToast(error.message, 'error'));
 }
 
 function logout() {
@@ -236,7 +296,7 @@ auth.onAuthStateChanged(user => {
     db.collection('usuarios').doc(user.uid).get()
       .then(doc => {
         if(doc.exists && doc.data().premium){
-          alert("Você já é usuário Premium! Modelos extras liberados.");
+          showToast("Você é usuário Premium! Modelos extras liberados.", 'info');
           // Aqui você poderia desbloquear recursos extras no site
         }
       });
@@ -256,7 +316,7 @@ auth.onAuthStateChanged(user => {
       <li>&#10004; Exportação em alta resolução e sem marca d'água.</li>
       <li>&#10004; Suporte prioritário.</li>
     </ul>
-    <button class="button-premium" onclick="alert('Processo de compra não implementado.')">Quero ser Premium</button>
+    <button class="button-premium" onclick="showToast('Processo de compra ainda não implementado.', 'info')">Quero ser Premium</button>
   </div>
 </div>
 
