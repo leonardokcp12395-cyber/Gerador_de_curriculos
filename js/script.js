@@ -64,11 +64,26 @@ function hideLoading(button) {
   button.innerHTML = button.dataset.originalText;
 }
 
+// --- Validation Helper ---
+function isValidEmail(email) {
+  const re = /^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
+  return re.test(String(email).toLowerCase());
+}
+
 // --- Authentication Functions ---
 function registerWithEmail() {
   const button = document.getElementById('registerBtn');
   const email = document.getElementById('register-email').value;
   const password = document.getElementById('register-password').value;
+
+  if (!isValidEmail(email)) {
+    showToast('Por favor, insira um formato de e-mail válido.', 'error');
+    return;
+  }
+  if (password.length < 6) {
+    showToast('A senha deve ter pelo menos 6 caracteres.', 'error');
+    return;
+  }
 
   showLoading(button);
   auth.createUserWithEmailAndPassword(email, password)
@@ -88,6 +103,11 @@ function loginWithEmail() {
   const button = document.getElementById('loginEmailBtn');
   const email = document.getElementById('login-email').value;
   const password = document.getElementById('login-password').value;
+
+  if (!isValidEmail(email)) {
+    showToast('Por favor, insira um formato de e-mail válido.', 'error');
+    return;
+  }
 
   showLoading(button);
   auth.signInWithEmailAndPassword(email, password)
