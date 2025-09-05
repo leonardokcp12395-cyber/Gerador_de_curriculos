@@ -13,119 +13,7 @@
 <!-- html2pdf -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
 
-<style>
-body { font-family: Arial, sans-serif; margin:0; padding:0; background:#f0f2f5; color:#333; }
-header { background:#4a90e2; color:white; padding:20px; text-align:center; }
-main { max-width:900px; margin:20px auto; padding:20px; background:white; border-radius:8px; box-shadow:0 2px 8px rgba(0,0,0,0.1);}
-h2 { color:#4a90e2; }
-label { display:block; margin-top:10px; font-weight:bold; }
-input, textarea, select { width:100%; padding:8px; margin-top:4px; border-radius:4px; border:1px solid #ccc; box-sizing:border-box; }
-button { margin-top:15px; padding:10px 20px; background:#4a90e2; color:white; border:none; border-radius:5px; cursor:pointer; font-size:16px; }
-button:hover { background:#357ab8; }
-#preview { margin-top:20px; padding:15px; border:1px solid #ccc; border-radius:5px; background:#fafafa; }
-#preview h3 { margin-top:0; }
-#loginStatus { text-align:right; margin-bottom:10px; }
-
-/* Modal Styles */
-.modal {
-  display: none;
-  position: fixed;
-  z-index: 1000;
-  left: 0;
-  top: 0;
-  width: 100%;
-  height: 100%;
-  overflow: auto;
-  background-color: rgba(0,0,0,0.6);
-}
-.modal-content {
-  background-color: #fefefe;
-  margin: 15% auto;
-  padding: 20px;
-  border: 1px solid #888;
-  width: 80%;
-  max-width: 500px;
-  border-radius: 8px;
-  box-shadow: 0 4px 8px 0 rgba(0,0,0,0.2),0 6px 20px 0 rgba(0,0,0,0.19);
-  animation-name: animatetop;
-  animation-duration: 0.4s
-}
-@keyframes animatetop {
-  from {top: -300px; opacity: 0}
-  to {top: 0; opacity: 1}
-}
-.close-button {
-  color: #aaa;
-  float: right;
-  font-size: 28px;
-  font-weight: bold;
-}
-.close-button:hover,
-.close-button:focus {
-  color: black;
-  text-decoration: none;
-  cursor: pointer;
-}
-.modal-content h2 {
-    margin-top: 0;
-}
-.modal-content ul {
-    list-style: none;
-    padding: 0;
-}
-.modal-content ul li {
-    margin-bottom: 10px;
-    color: #555;
-}
-.button-premium {
-    background: #f39c12;
-    display: block;
-    width: 100%;
-    text-align: center;
-}
-
-/* Toast Notification Styles */
-#toast-container {
-  position: fixed;
-  top: 20px;
-  right: 20px;
-  z-index: 2000;
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-}
-.toast {
-  padding: 15px 20px;
-  border-radius: 5px;
-  color: white;
-  font-size: 16px;
-  box-shadow: 0 2px 10px rgba(0,0,0,0.2);
-  opacity: 0;
-  transform: translateX(100%);
-  animation: slideIn 0.5s forwards, fadeOut 0.5s 4.5s forwards;
-}
-@keyframes slideIn {
-  to {
-    opacity: 1;
-    transform: translateX(0);
-  }
-}
-@keyframes fadeOut {
-  to {
-    opacity: 0;
-    transform: translateX(100%);
-  }
-}
-.toast-success {
-  background-color: #2ecc71;
-}
-.toast-error {
-  background-color: #e74c3c;
-}
-.toast-info {
-  background-color: #3498db;
-}
-</style>
+<link rel="stylesheet" href="css/style.css">
 </head>
 <body>
 <div id="toast-container"></div>
@@ -135,10 +23,12 @@ button:hover { background:#357ab8; }
 </header>
 
 <main>
-  <div id="loginStatus">
-    <span id="userEmail"></span>
-    <button id="loginBtn" onclick="loginGoogle()">Login com Google</button>
-    <button id="logoutBtn" onclick="logout()" style="display:none;">Logout</button>
+  <div id="auth-container">
+    <div id="user-info" style="display:none;">
+      <span id="userEmail"></span>
+      <button id="logoutBtn" onclick="logout()">Logout</button>
+    </div>
+    <button id="openLoginModalBtn" onclick="openAuthModal()">Login</button>
   </div>
 
   <h2>Preencha seus dados</h2>
@@ -153,156 +43,68 @@ button:hover { background:#357ab8; }
     <textarea id="resumo" rows="3" placeholder="Breve descrição sobre você"></textarea>
 
     <label>Experiências</label>
-    <textarea id="experiencias" rows="4" placeholder="Experiências profissionais separadas por vírgula"></textarea>
+    <div class="input-group">
+      <input type="text" id="experiencia-input" placeholder="Nova experiência">
+      <button type="button" onclick="adicionarItem('experiencias')">Adicionar</button>
+    </div>
+    <ul id="experiencias-list"></ul>
 
     <label>Formação Acadêmica</label>
-    <textarea id="formacao" rows="3" placeholder="Cursos, instituições e datas"></textarea>
+    <div class="input-group">
+      <input type="text" id="formacao-input" placeholder="Nova formação">
+      <button type="button" onclick="adicionarItem('formacao')">Adicionar</button>
+    </div>
+    <ul id="formacao-list"></ul>
 
     <label>Habilidades</label>
-    <input type="text" id="habilidades" placeholder="Ex.: Python, Excel, Comunicação">
+    <div class="input-group">
+      <input type="text" id="habilidade-input" placeholder="Nova habilidade">
+      <button type="button" onclick="adicionarItem('habilidades')">Adicionar</button>
+    </div>
+    <ul id="habilidades-list"></ul>
 
     <label>Idiomas</label>
-    <input type="text" id="idiomas" placeholder="Ex.: Inglês - Avançado, Espanhol - Intermediário">
+    <div class="input-group">
+      <input type="text" id="idioma-input" placeholder="Novo idioma">
+      <button type="button" onclick="adicionarItem('idiomas')">Adicionar</button>
+    </div>
+    <ul id="idiomas-list"></ul>
 
-    <button type="button" onclick="gerarPreview()">Gerar Preview</button>
     <button type="button" onclick="exportarPDF()">Exportar PDF</button>
     <button type="button" onclick="comprarPremium()">Comprar Premium</button>
   </form>
 
   <div id="preview">
     <h3>Preview do Currículo</h3>
-    <p>Preencha os campos e clique em "Gerar Preview" para ver seu currículo aqui.</p>
+    <p>Preencha os campos para ver seu currículo aqui.</p>
   </div>
 </main>
 
-<script>
-// --- Toast Notification Function ---
-function showToast(message, type = 'info') {
-  const container = document.getElementById('toast-container');
+<script src="js/script.js"></script>
 
-  const toast = document.createElement('div');
-  toast.className = `toast toast-${type}`;
-  toast.textContent = message;
+<!-- Auth Modal -->
+<div id="authModal" class="modal">
+  <div class="modal-content">
+    <span class="close-button" onclick="closeAuthModal()">&times;</span>
+    <div id="login-form">
+      <h2>Login</h2>
+      <input type="email" id="login-email" placeholder="Email">
+      <input type="password" id="login-password" placeholder="Senha">
+      <button onclick="loginWithEmail()">Login</button>
+      <p>Não tem uma conta? <a href="#" onclick="toggleAuthForms()">Registre-se</a></p>
+      <hr>
+      <button id="loginBtn" onclick="loginGoogle()">Login com Google</button>
+    </div>
+    <div id="register-form" style="display:none;">
+      <h2>Registrar</h2>
+      <input type="email" id="register-email" placeholder="Email">
+      <input type="password" id="register-password" placeholder="Senha">
+      <button onclick="registerWithEmail()">Registrar</button>
+      <p>Já tem uma conta? <a href="#" onclick="toggleAuthForms()">Faça login</a></p>
+    </div>
+  </div>
+</div>
 
-  container.appendChild(toast);
-
-  // Remove the toast after 5 seconds
-  setTimeout(() => {
-    toast.remove();
-  }, 5000);
-}
-
-// Firebase Config com suas chaves
-const firebaseConfig = {
-  apiKey: "AIzaSyBxkmzxao2HOnGsb2Y2R7W0q9FnYdt8dJE",
-  authDomain: "gerador-de-curriculos-online.firebaseapp.com",
-  projectId: "gerador-de-curriculos-online",
-  storageBucket: "gerador-de-curriculos-online.firebasestorage.app",
-  messagingSenderId: "114021870709",
-  appId: "1:114021870709:web:f73b2d837bb4b5dd7adc3c",
-  measurementId: "G-HLWH9KSK0B"
-};
-
-// Inicializar Firebase
-firebase.initializeApp(firebaseConfig);
-const auth = firebase.auth();
-const db = firebase.firestore();
-
-// Login Google
-function loginGoogle() {
-  const provider = new firebase.auth.GoogleAuthProvider();
-  auth.signInWithPopup(provider)
-    .then(result => {
-      document.getElementById('userEmail').innerText = result.user.email;
-      document.getElementById('loginBtn').style.display = 'none';
-      document.getElementById('logoutBtn').style.display = 'inline';
-      showToast(`Bem-vindo, ${result.user.email}!`, 'success');
-    })
-    .catch(error => showToast(error.message, 'error'));
-}
-
-function logout() {
-  auth.signOut().then(() => {
-    document.getElementById('userEmail').innerText = '';
-    document.getElementById('loginBtn').style.display = 'inline';
-    document.getElementById('logoutBtn').style.display = 'none';
-  });
-}
-
-// Monitor login status
-auth.onAuthStateChanged(user => {
-  if(user){
-    document.getElementById('userEmail').innerText = user.email;
-    document.getElementById('loginBtn').style.display = 'none';
-    document.getElementById('logoutBtn').style.display = 'inline';
-  } else {
-    document.getElementById('userEmail').innerText = '';
-    document.getElementById('loginBtn').style.display = 'inline';
-    document.getElementById('logoutBtn').style.display = 'none';
-  }
-});
-
-// Gerar Preview
-function gerarPreview() {
-  const nome = document.getElementById('nome').value;
-  const contato = document.getElementById('contato').value;
-  const resumo = document.getElementById('resumo').value;
-  const experiencias = document.getElementById('experiencias').value.split(',');
-  const formacao = document.getElementById('formacao').value.split(',');
-  const habilidades = document.getElementById('habilidades').value.split(',');
-  const idiomas = document.getElementById('idiomas').value.split(',');
-
-  let html = `<h2>${nome}</h2>`;
-  html += `<p><strong>Contato:</strong> ${contato}</p>`;
-  html += `<p><strong>Resumo:</strong> ${resumo}</p>`;
-
-  html += `<h3>Experiências</h3><ul>`;
-  experiencias.forEach(exp => { if(exp.trim()) html += `<li>${exp.trim()}</li>`; });
-  html += `</ul>`;
-
-  html += `<h3>Formação Acadêmica</h3><ul>`;
-  formacao.forEach(f => { if(f.trim()) html += `<li>${f.trim()}</li>`; });
-  html += `</ul>`;
-
-  html += `<h3>Habilidades</h3><ul>`;
-  habilidades.forEach(h => { if(h.trim()) html += `<li>${h.trim()}</li>`; });
-  html += `</ul>`;
-
-  html += `<h3>Idiomas</h3><ul>`;
-  idiomas.forEach(i => { if(i.trim()) html += `<li>${i.trim()}</li>`; });
-  html += `</ul>`;
-
-  document.getElementById('preview').innerHTML = html;
-}
-
-// Exportar PDF
-function exportarPDF() {
-  const element = document.getElementById('preview');
-  html2pdf().set({margin:0.5, filename:'curriculo.pdf', html2canvas:{scale:2}}).from(element).save();
-}
-
-// Comprar Premium
-function comprarPremium() {
-  document.getElementById('premiumModal').style.display = 'block';
-}
-
-function closePremiumModal() {
-  document.getElementById('premiumModal').style.display = 'none';
-}
-
-// Check Premium
-auth.onAuthStateChanged(user => {
-  if(user){
-    db.collection('usuarios').doc(user.uid).get()
-      .then(doc => {
-        if(doc.exists && doc.data().premium){
-          showToast("Você é usuário Premium! Modelos extras liberados.", 'info');
-          // Aqui você poderia desbloquear recursos extras no site
-        }
-      });
-  }
-});
-</script>
 
 <!-- Premium Modal -->
 <div id="premiumModal" class="modal">
