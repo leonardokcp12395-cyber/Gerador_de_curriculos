@@ -90,16 +90,16 @@
       <h2>Login</h2>
       <input type="email" id="login-email" placeholder="Email">
       <input type="password" id="login-password" placeholder="Senha">
-      <button onclick="loginWithEmail()">Login</button>
+      <button id="loginEmailBtn" onclick="loginWithEmail()">Login</button>
       <p>Não tem uma conta? <a href="#" onclick="toggleAuthForms()">Registre-se</a></p>
       <hr>
-      <button id="loginBtn" onclick="loginGoogle()">Login com Google</button>
+      <button id="loginGoogleBtn" onclick="loginGoogle()">Login com Google</button>
     </div>
     <div id="register-form" style="display:none;">
       <h2>Registrar</h2>
       <input type="email" id="register-email" placeholder="Email">
       <input type="password" id="register-password" placeholder="Senha">
-      <button onclick="registerWithEmail()">Registrar</button>
+      <button id="registerBtn" onclick="registerWithEmail()">Registrar</button>
       <p>Já tem uma conta? <a href="#" onclick="toggleAuthForms()">Faça login</a></p>
     </div>
   </div>

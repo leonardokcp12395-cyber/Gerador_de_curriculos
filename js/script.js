@@ -49,37 +49,76 @@ function toggleAuthForms() {
   registerForm.style.display = registerForm.style.display === 'none' ? 'block' : 'none';
 }
 
+// --- Loading State Helpers ---
+function showLoading(button) {
+  button.disabled = true;
+  const spinner = document.createElement('span');
+  spinner.className = 'spinner';
+  button.dataset.originalText = button.innerHTML;
+  button.innerHTML = '';
+  button.appendChild(spinner);
+}
+
+function hideLoading(button) {
+  button.disabled = false;
+  button.innerHTML = button.dataset.originalText;
+}
+
 // --- Authentication Functions ---
 function registerWithEmail() {
+  const button = document.getElementById('registerBtn');
   const email = document.getElementById('register-email').value;
   const password = document.getElementById('register-password').value;
+
+  showLoading(button);
   auth.createUserWithEmailAndPassword(email, password)
     .then(result => {
       showToast(`Usuário ${result.user.email} registrado com sucesso!`, 'success');
       closeAuthModal();
     })
-    .catch(error => showToast(error.message, 'error'));
+    .catch(error => {
+      showToast(error.message, 'error');
+    })
+    .finally(() => {
+      hideLoading(button);
+    });
 }
 
 function loginWithEmail() {
+  const button = document.getElementById('loginEmailBtn');
   const email = document.getElementById('login-email').value;
   const password = document.getElementById('login-password').value;
+
+  showLoading(button);
   auth.signInWithEmailAndPassword(email, password)
     .then(result => {
       showToast(`Bem-vindo, ${result.user.email}!`, 'success');
       closeAuthModal();
     })
-    .catch(error => showToast(error.message, 'error'));
+    .catch(error => {
+      showToast(error.message, 'error');
+    })
+    .finally(() => {
+      hideLoading(button);
+    });
 }
 
 function loginGoogle() {
+  const button = document.getElementById('loginGoogleBtn');
   const provider = new firebase.auth.GoogleAuthProvider();
+
+  showLoading(button);
   auth.signInWithPopup(provider)
     .then(result => {
       showToast(`Bem-vindo, ${result.user.email}!`, 'success');
       closeAuthModal();
     })
-    .catch(error => showToast(error.message, 'error'));
+    .catch(error => {
+      showToast(error.message, 'error');
+    })
+    .finally(() => {
+      hideLoading(button);
+    });
 }
 
 function logout() {
