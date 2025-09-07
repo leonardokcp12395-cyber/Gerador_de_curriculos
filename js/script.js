@@ -172,7 +172,7 @@ auth.onAuthStateChanged(user => {
 
 
 function adicionarItem(tipo) {
-    const input = document.getElementById(`${tipo.slice(0, -1)}-input`);
+    const input = document.getElementById(`${tipo}-input`);
     const list = document.getElementById(`${tipo}-list`);
     const value = input.value.trim();
 
@@ -219,20 +219,19 @@ function gerarPreview() {
     html += `</div>`;
   }
 
-  const sections = ['experiencias', 'formacao', 'habilidades', 'idiomas'];
-  const sectionTitles = {
-      'experiencias': 'Experiência Profissional',
+  const sections = {
+      'experiencia': 'Experiência Profissional',
       'formacao': 'Formação Acadêmica',
-      'habilidades': 'Habilidades',
-      'idiomas': 'Idiomas'
+      'habilidade': 'Habilidades',
+      'idioma': 'Idiomas'
   };
 
-  sections.forEach(section => {
-      const list = document.getElementById(`${section}-list`);
+  Object.keys(sections).forEach(tipo => {
+      const list = document.getElementById(`${tipo}-list`);
       const items = Array.from(list.children).map(li => li.firstChild.textContent.trim()).filter(item => item);
       if (items.length > 0) {
           html += `<div class="resume-section">`;
-          html += `<h3>${sectionTitles[section]}</h3><ul>`;
+          html += `<h3>${sections[tipo]}</h3><ul>`;
           items.forEach(item => {
               html += `<li>${item}</li>`;
           });
@@ -292,10 +291,10 @@ function exportarPDF() {
   const nome = document.getElementById('nome').value;
   const contato = document.getElementById('contato').value;
   const resumo = document.getElementById('resumo').value;
-  const experiencias = Array.from(document.getElementById('experiencias-list').children).map(li => li.firstChild.textContent.trim());
+  const experiencia = Array.from(document.getElementById('experiencia-list').children).map(li => li.firstChild.textContent.trim());
   const formacao = Array.from(document.getElementById('formacao-list').children).map(li => li.firstChild.textContent.trim());
-  const habilidades = Array.from(document.getElementById('habilidades-list').children).map(li => li.firstChild.textContent.trim());
-  const idiomas = Array.from(document.getElementById('idiomas-list').children).map(li => li.firstChild.textContent.trim());
+  const habilidade = Array.from(document.getElementById('habilidade-list').children).map(li => li.firstChild.textContent.trim());
+  const idioma = Array.from(document.getElementById('idioma-list').children).map(li => li.firstChild.textContent.trim());
 
   // --- Build PDF ---
   // Header
@@ -319,10 +318,10 @@ function exportarPDF() {
   }
 
   // Other Sections
-  addSection("Experiência Profissional", experiencias);
+  addSection("Experiência Profissional", experiencia);
   addSection("Formação Acadêmica", formacao);
-  addSection("Habilidades", habilidades);
-  addSection("Idiomas", idiomas);
+  addSection("Habilidades", habilidade);
+  addSection("Idiomas", idioma);
 
   doc.save('curriculo.pdf');
 }
