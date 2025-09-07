@@ -201,13 +201,27 @@ function gerarPreview() {
   const contato = document.getElementById('contato').value;
   const resumo = document.getElementById('resumo').value;
 
-  let html = `<h2>${nome}</h2>`;
-  html += `<p><strong>Contato:</strong> ${contato}</p>`;
-  html += `<p><strong>Resumo:</strong> ${resumo}</p>`;
+  let html = `<div class="resume-preview">`;
+
+  // Cabeçalho
+  if (nome || contato) {
+    html += `<div class="resume-header">`;
+    if (nome) html += `<h2>${nome}</h2>`;
+    if (contato) html += `<p>${contato}</p>`;
+    html += `</div>`;
+  }
+
+  // Resumo
+  if (resumo) {
+    html += `<div class="resume-section">`;
+    html += `<h3>Resumo Profissional</h3>`;
+    html += `<p>${resumo}</p>`;
+    html += `</div>`;
+  }
 
   const sections = ['experiencias', 'formacao', 'habilidades', 'idiomas'];
   const sectionTitles = {
-      'experiencias': 'Experiências',
+      'experiencias': 'Experiência Profissional',
       'formacao': 'Formação Acadêmica',
       'habilidades': 'Habilidades',
       'idiomas': 'Idiomas'
@@ -215,23 +229,102 @@ function gerarPreview() {
 
   sections.forEach(section => {
       const list = document.getElementById(`${section}-list`);
-      const items = Array.from(list.children).map(li => li.firstChild.textContent);
+      const items = Array.from(list.children).map(li => li.firstChild.textContent.trim()).filter(item => item);
       if (items.length > 0) {
+          html += `<div class="resume-section">`;
           html += `<h3>${sectionTitles[section]}</h3><ul>`;
           items.forEach(item => {
-              if (item.trim()) html += `<li>${item.trim()}</li>`;
+              html += `<li>${item}</li>`;
           });
-          html += `</ul>`;
+          html += `</ul></div>`;
       }
   });
 
+  html += `</div>`; // Fechar resume-preview
   document.getElementById('preview').innerHTML = html;
 }
 
 // Exportar PDF
 function exportarPDF() {
-  const element = document.getElementById('preview');
-  html2pdf().set({margin:0.5, filename:'curriculo.pdf', html2canvas:{scale:2}}).from(element).save();
+  const { jsPDF } = window.jspdf;
+  const doc = new jsPDF({
+    orientation: 'p',
+    unit: 'in',
+    format: 'letter'
+  });
+
+  const margin = 0.75;
+  const pageWidth = doc.internal.pageSize.getWidth();
+  const pageHeight = doc.internal.pageSize.getHeight();
+  const maxWidth = pageWidth - (margin * 2);
+  let y = margin;
+
+  // --- Helper function to add sections ---
+  function addSection(title, items) {
+    if (!items || items.length === 0) return;
+
+    if (y + 0.5 > pageHeight - margin) { // Check for page break
+      doc.addPage();
+      y = margin;
+    }
+
+    doc.setFontSize(18);
+    doc.text(title, margin, y);
+    y += 0.25;
+    doc.setLineWidth(0.01);
+    doc.line(margin, y, pageWidth - margin, y);
+    y += 0.25;
+
+    doc.setFontSize(12);
+    items.forEach(item => {
+      if (y + 0.3 > pageHeight - margin) {
+        doc.addPage();
+        y = margin;
+      }
+      const splitText = doc.splitTextToSize(item, maxWidth);
+      doc.text(splitText, margin + 0.2, y);
+      y += (splitText.length * 0.2) + 0.1;
+    });
+    y += 0.2; // Extra space after section
+  }
+
+  // --- Get form data ---
+  const nome = document.getElementById('nome').value;
+  const contato = document.getElementById('contato').value;
+  const resumo = document.getElementById('resumo').value;
+  const experiencias = Array.from(document.getElementById('experiencias-list').children).map(li => li.firstChild.textContent.trim());
+  const formacao = Array.from(document.getElementById('formacao-list').children).map(li => li.firstChild.textContent.trim());
+  const habilidades = Array.from(document.getElementById('habilidades-list').children).map(li => li.firstChild.textContent.trim());
+  const idiomas = Array.from(document.getElementById('idiomas-list').children).map(li => li.firstChild.textContent.trim());
+
+  // --- Build PDF ---
+  // Header
+  if (nome) {
+    doc.setFontSize(28);
+    doc.text(nome, pageWidth / 2, y, { align: 'center' });
+    y += 0.4;
+  }
+  if (contato) {
+    doc.setFontSize(14);
+    doc.text(contato, pageWidth / 2, y, { align: 'center' });
+    y += 0.3;
+  }
+  doc.setLineWidth(0.02);
+  doc.line(margin, y, pageWidth - margin, y);
+  y += 0.4;
+
+  // Resumo
+  if (resumo) {
+    addSection("Resumo Profissional", [resumo]);
+  }
+
+  // Other Sections
+  addSection("Experiência Profissional", experiencias);
+  addSection("Formação Acadêmica", formacao);
+  addSection("Habilidades", habilidades);
+  addSection("Idiomas", idiomas);
+
+  doc.save('curriculo.pdf');
 }
 
 // Comprar Premium
