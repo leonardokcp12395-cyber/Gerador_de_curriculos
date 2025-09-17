@@ -60,6 +60,14 @@ button:hover { background:#357ab8; }
   margin-bottom: 20px;
 }
 
+.template-selector {
+  margin-bottom: 20px;
+  text-align: center;
+}
+.template-selector label {
+  margin-right: 10px;
+}
+
 #user-info {
   display: flex;
   justify-content: flex-end;
@@ -252,6 +260,58 @@ button:disabled {
   to {
     transform: rotate(360deg);
   }
+}
+
+/* --- Template: Moderno --- */
+.template-modern {
+  font-family: 'Helvetica', Arial, sans-serif;
+  display: flex;
+  line-height: 1.5;
+}
+.template-modern .resume-sidebar {
+  width: 35%;
+  background-color: #34495e;
+  color: white;
+  padding: 1.5cm;
+}
+.template-modern .resume-main-content {
+  width: 65%;
+  padding: 1.5cm;
+}
+.template-modern .resume-header {
+  text-align: left;
+  border-bottom: none;
+  margin-bottom: 30px;
+}
+.template-modern .resume-header h2 {
+  color: white;
+  font-size: 24px;
+  margin-bottom: 10px;
+}
+.template-modern .resume-header p {
+  font-size: 12px;
+  margin-bottom: 20px;
+}
+.template-modern .resume-section h3 {
+  font-size: 16px;
+  color: #3498db;
+  border-bottom: 2px solid #3498db;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  margin-top: 20px;
+}
+.template-modern .sidebar-section h3 {
+  color: #ecf0f1;
+  border-bottom: 1px solid #ecf0f1;
+}
+.template-modern ul {
+  list-style-type: none;
+  padding-left: 0;
+}
+.template-modern li {
+  background: none;
+  margin-bottom: 8px;
+  font-size: 12px;
 }
 
 .sr-only {

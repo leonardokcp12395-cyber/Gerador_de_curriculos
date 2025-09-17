@@ -31,6 +31,14 @@
     <button id="openLoginModalBtn" onclick="openAuthModal()">Login</button>
   </div>
 
+  <div class="template-selector">
+    <label for="template-select">Escolha um Modelo:</label>
+    <select id="template-select" onchange="gerarPreview()">
+      <option value="padrao">Padrão</option>
+      <option value="moderno">Moderno</option>
+    </select>
+  </div>
+
   <h2>Preencha seus dados</h2>
   <form id="cvForm">
     <label for="nome">Nome</label>
